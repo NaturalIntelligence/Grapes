@@ -16,23 +16,23 @@ Let's understand them with some examples;
 
 1. Create the BS as you create RE (not all the features of RE is supported currently)
 
-  ```
+  ```java
 	seq = new BooleanSequence("ab(cde|c)?mn");
   ```
 2. Compile it and minimize it. Better to do it in the starting of your application.
 
-  ```
+  ```java
 	seq.compile().minimize();
   ```
   
 3. Use an appropriate Matcher
 
-  ```
+  ```java
 	CoreMatcher matcher = seq.getCoreMatcher();
   ```
 4. Assert
 
-  ```
+  ```java
     assertTrue(matcher.match("abmn".toCharArray()));
     assertTrue(matcher.match("abcdemn".toCharArray()));
     assertTrue(matcher.match("abcmn".toCharArray()));
@@ -43,7 +43,7 @@ Currently 3 types of matcher are supported.
 1. **Core Matcher** (as explained above)
 2. **Progressive Matcher** : You need not to pass complete string for comparisoin in one go. It is good in case of streams.
   
-  ```
+  ```java
 	BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
 	seq.capture = true;
 	seq.compile().minimize();
@@ -57,7 +57,7 @@ Currently 3 types of matcher are supported.
   
 3. **Lazy Matcher** : They are same as Progressive Matcher. But with this matcher you can pass just the extra part of string.
   
-  ```
+  ```java
 	BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
 	seq.capture = true;
 	seq.compile().minimize();
@@ -76,12 +76,12 @@ In addition of this; There are many other features;
 
 * **JSON view** : You can convert a BS to json. I have created a temorary visualization tool to understande how a sequence is evaluated.
   
-  ```
+  ```java
 	RESequenceUtil.toJson(reSeq));
   ```
 * **Merge Sequences** : You can merge any number of sequences.
   
-  ```
+  ```java
 	BooleanSequence rootSeq = new BooleanSequence("");rootSeq.compile().minimize();
 	BooleanSequence angleSeq = new BooleanSequence("-?0(.0)?°",TokenType.ANGLE); angleSeq.compile().minimize();
 	BooleanSequence cordinateSeq = new BooleanSequence("-?0(.0)?° -?0(.0)?['′] -?0(.0)?[\"″] a",TokenType.G_Cordinate);cordinateSeq.compile().minimize();
