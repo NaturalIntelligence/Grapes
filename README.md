@@ -1,9 +1,11 @@
 # BooleanSequence
 
 ##History
-I started this project by mistake... I was developing a fast NLP tokenizer. One day I needed a feature of Regular Expression which can help me to validate some dynamic patterns. Since I was not aware that the feature is already presented with RE, I thought to code it bymyself. Intially I thought to modify existing RE engine to support the new feature. But since I am bit lazy to read books, I couldn't read the whole book of Autometa theory which can explain me how RE engine works (I dint remember how I passed the exam of Autometa theory in my college) so I decided to develop my own RE engine. And that's how this project was started. Funny but True
+I started this project by mistake... yeah you heard me right. I was developing a fast NLP tokenizer. One day I needed a feature of Regular Expression which can help me to validate some dynamic patterns. Since I was not aware that the feature is already presented with RE, I thought to code it by myself. Intially I thought to modify existing RE engine to support the new feature. But since I am bit lazy to read books, I couldn't read the whole book of Autometa theory to know how RE engine works (I dint remember how I passed the exam of Autometa theory in my college) so I decided to develop my own RE engine. And that's how this project was started. Funny but True
 
 Later on I realized that this is 3 times faster than java RE. So I decided to using Boolean Sequences instead of RE in my project. And then I introduced new features which are not even present with current RE that we'll discuss later in this ReadMe.
+
+Currently Boolean Sequences are 1.5-2 times faster than current Java RE.
 
 ##Description
 Boolean sequences are kind of Regular Expression to make string comparision faster.
@@ -96,3 +98,25 @@ In addition of this; There are many other features;
 * **Custom return type** : Instead of just returning whether your string is matching to a sequence or not, you can also return custom type. It is basically helpful when you merge multiple type of expressions. You can refer above example for the same. By default it returns : PASSED, MATCHED, FAILED.
 	
 and more ...
+
+### Supported RE symbols
+Currently Boolean Sequence is supporting following RE symbols
+
+* Range Selector : [,] eg [a-zA-Z0-9], [abc]
+* Grouping, Capture, Sub Expression using '(', ')'
+* Optional '?'
+* Or '|'
+* Any '.'
+* Dynamic selection \\1 upto 9 *forgive my laziness to support upto 9 only*
+
+
+### Next plan
+My immediate plans to support 
+* Frequence {min,max}, {,max}, {min,} , '+', '*'
+
+
+### Future Plan
+* Improving JSON to Graph view tool
+* Laziness in case of dynamic selection
+* Making it thread safe
+* Supporting more RE symbols
