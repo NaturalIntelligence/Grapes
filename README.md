@@ -113,6 +113,7 @@ Currently Boolean Sequence is supporting following RE symbols
 ### Next plan
 My immediate plans to support 
 * Frequence {min,max}, {,max}, {min,} , '+', '*'
+* Convert into gradle project. So that you can use generated jar directly instead of compiling the project by yourself
 
 
 ### Future Plan
