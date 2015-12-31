@@ -1,6 +1,8 @@
 package os.nushi.booleansequence;
 
-import static os.nushi.booleansequence.BooleanIdentifier.*;
+import static os.nushi.booleansequence.BooleanIdentifier.FAILED;
+import static os.nushi.booleansequence.BooleanIdentifier.MATCHED;
+import static os.nushi.booleansequence.BooleanIdentifier.PASSED;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,10 +10,6 @@ import java.util.regex.Pattern;
 import org.junit.Assert;
 import org.junit.Test;
 
-import os.nushi.booleansequence.BooleanIdentifier;
-import os.nushi.booleansequence.BooleanSequence;
-import os.nushi.booleansequence.ExpressionIdentifier;
-import os.nushi.booleansequence.RESequenceUtil;
 import os.nushi.booleansequence.matcher.CoreMatcher;
 import os.nushi.booleansequence.matcher.LazyMatcher;
 import os.nushi.booleansequence.matcher.ProgressiveMatcher;
