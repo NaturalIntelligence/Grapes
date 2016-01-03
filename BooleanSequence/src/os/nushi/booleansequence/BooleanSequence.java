@@ -35,6 +35,7 @@ import os.nushi.booleansequence.matcher.CoreMatcher;
 import os.nushi.booleansequence.matcher.ProgressiveMatcher;
 import os.nushi.booleansequence.model.SequenceLength;
 import os.nushi.booleansequence.model.nodes.AnyNode;
+import os.nushi.booleansequence.model.nodes.CaptureNode;
 import os.nushi.booleansequence.model.nodes.LazyNode;
 import os.nushi.booleansequence.model.nodes.Node;
 import os.nushi.booleansequence.model.nodes.NormalNode;
@@ -127,7 +128,7 @@ public class BooleanSequence {
 				NormalNode blankNode = new NormalNode();
 				for(i++;re[i] != ']';i++){
 					if(re[i+1]=='-'){
-						Node node = new RangeNode(re[i],re[i+2]);
+						Node node = getRangeNode(re[i],re[i+2]);
 						node.links.add(blankNode);
 						this.currentNode.links.add(node);
 						i=i+2;
@@ -145,11 +146,11 @@ public class BooleanSequence {
 				beforeNode.links.add(blankNode);
 				currentNode = blankNode;
 			}else if(re[i] == '.'){
-				AnyNode node = new AnyNode();
+				Node node = getAnyNode();
 				currentNode.links.add(node);
 				beforeNode = currentNode;
 				currentNode = node;
-			}else if(re[i] == '{'){
+			}else if(re[i] == '{'){//TODO
 				int start = ++i;
 				//read until } is found
 				for(;re[i] != '}';i++){
@@ -159,11 +160,6 @@ public class BooleanSequence {
 				}
 				
 				int num = Integer.parseInt(new String(CharArrayUtil.subArray(re, start, i-1)));
-				System.out.println(num);
-				/*AnyNode node = new AnyNode();
-				currentNode.links.add(node);
-				beforeNode = currentNode;
-				currentNode = node;*/
 			}else if(re[i] == '\\'){
 				//add next char as plain Node
 				char c = re[++i];
@@ -195,13 +191,33 @@ public class BooleanSequence {
 		}
 		return this;
 	}
+
+	private Node getAnyNode() {
+		Node node= new AnyNode();
+		if(subsequencecapture) {
+			CaptureNode cNode = new CaptureNode(node);
+			cNode.captureTo(matchedSequence);
+			return cNode;
+		}
+		return node ;
+	}
+
+	private Node getRangeNode(char from,char to) {
+		RangeNode node = new RangeNode(from,to);
+		if(subsequencecapture) {
+			CaptureNode cNode = new CaptureNode(node);
+			cNode.captureTo(matchedSequence);
+			return cNode;
+		}
+		return node;
+	}
 	
 	private Node getNode(char ch){
 		if(subsequencecapture) {
 			NormalNode node = new NormalNode(ch);
-			node.capture = true;
-			node.captureTo(matchedSequence);
-			return node;
+			CaptureNode cNode = new CaptureNode(node);
+			cNode.captureTo(matchedSequence);
+			return cNode;
 		}
 		return new NormalNode(ch);
 	}

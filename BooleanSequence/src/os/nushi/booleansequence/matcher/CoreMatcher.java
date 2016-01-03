@@ -27,6 +27,8 @@ SOFTWARE.
  */
 package os.nushi.booleansequence.matcher;
 
+import java.util.ArrayList;
+
 import os.nushi.booleansequence.BooleanIdentifier;
 import os.nushi.booleansequence.BooleanSequence;
 import os.nushi.booleansequence.ExpressionIdentifier;
@@ -76,7 +78,7 @@ public class CoreMatcher implements Matcher{
 	
 	private Node match(char[] ch,Counter index , Node nd) {
 		for (Node node : nd.links) {
-			if(node.match(ch,index)) return node;
+			if(node.match(ch,index)) return node.getNode();
 		}
 		return null;
 	}

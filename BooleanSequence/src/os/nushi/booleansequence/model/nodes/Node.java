@@ -12,6 +12,7 @@ public abstract class  Node {
 	public Set<Node> links;
 	public boolean isEndNode;
 	public ExpressionIdentifier resultType;
+	public boolean iterable;
 	
 	public Node() {
 		this.links = new HashSet<Node>();
@@ -47,6 +48,10 @@ public abstract class  Node {
 	}
 	
 	public void capture(char c){
-		if(capture)	list.add(c);
+		list.add(c);
+	}
+	
+	public Node getNode(){
+		return this;
 	}
 }

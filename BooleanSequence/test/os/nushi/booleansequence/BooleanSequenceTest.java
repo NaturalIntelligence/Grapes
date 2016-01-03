@@ -301,37 +301,7 @@ public class BooleanSequenceTest {
 		assertFalse(matcher.match("abcd".toCharArray()));
 	}
 	
-	@Test
-	public void testCaptureNode() {
-		BooleanSequence seq = new BooleanSequence("a([bc])d");
-		seq.capture = true;
-		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
-		Assert.assertEquals(depth.min,3);
-		Assert.assertEquals(depth.max,3);
-		CoreMatcher matcher = seq.getCoreMatcher();
-		assertTrue(matcher.match("abd".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		assertTrue(matcher.match("acd".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-	}
 	
-	@Test
-	public void testMultipleCapture() {
-		BooleanSequence seq = new BooleanSequence("a([bc])d(mn)?");
-		seq.capture = true;
-		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
-		Assert.assertEquals(depth.min,3);
-		Assert.assertEquals(depth.max,5);
-		CoreMatcher matcher = seq.getCoreMatcher();
-		assertTrue(matcher.match("abdmn".toCharArray()));
-		assertTrue(matcher.match("abd".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		assertTrue(matcher.match("acd".toCharArray()));
-		assertTrue(matcher.match("acdmn".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-	}
 	
 	@Test
 	public void testToJson() {
@@ -341,43 +311,17 @@ public class BooleanSequenceTest {
 		System.out.println(RESequenceUtil.toJson(seq));
 	}
 	
-	@Test
-	public void testCaptureAndLazyNodes() {
-		BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
-		seq.capture = true;
-		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
-		Assert.assertEquals(depth.min,7);
-		Assert.assertEquals(depth.max,8);
-		CoreMatcher matcher = seq.getCoreMatcher();
-		assertTrue(matcher.match("abdobao".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		assertTrue(matcher.match("abdmnbamn".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		assertTrue(matcher.match("acdocao".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		assertTrue(matcher.match("acdmncamn".toCharArray()));
-		
-		seq = new BooleanSequence("a([bc])d\\1?a");
-		seq.capture = true;
-		seq.compile();seq.minimize();
-		depth = RESequenceUtil.calculateDepth(seq);
-		Assert.assertEquals(depth.min,4);
-		Assert.assertEquals(depth.max,5);
-		matcher = seq.getCoreMatcher();
-		assertTrue(matcher.match("abdba".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		assertTrue(matcher.match("abda".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
-		
-	}
 	
 	@Test
 	public void testLazyMatch() {
 		LazyMatcher matcher = new LazyMatcher();
 		BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
 		seq.capture = true;
-		seq.compile();seq.minimize();
+		seq.compile().minimize();
+		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		Assert.assertEquals(depth.min,7);
+		Assert.assertEquals(depth.max,8);
+		
 		matcher.setSequence(seq);
 		Assert.assertEquals(FAILED,matcher.match());
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
@@ -408,7 +352,7 @@ public class BooleanSequenceTest {
 		seq.capture = false;
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		depth = RESequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,1);
 		Assert.assertEquals(depth.max,3);
 		Assert.assertEquals(PASSED,matcher.match('a'));//PASSED

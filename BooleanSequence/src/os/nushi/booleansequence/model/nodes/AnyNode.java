@@ -9,7 +9,6 @@ public class AnyNode extends Node {
 	}
 	@Override
 	public boolean match(char[] ch, Counter index) {
-		super.capture(ch[index.counter]);
 		return true;
 	}
 	

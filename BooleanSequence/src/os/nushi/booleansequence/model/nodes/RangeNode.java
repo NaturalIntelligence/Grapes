@@ -20,11 +20,7 @@ public class RangeNode extends Node {
 
 	@Override
 	public boolean match(char[] ch, Counter index) {
-		if(CharUtil.isRange(ch[index.counter], start, end)){
-			super.capture(ch[index.counter]);
-			return true;
-		}
-		return false;
+		return CharUtil.isRange(ch[index.counter], start, end);
 	}
 	
 	@Override

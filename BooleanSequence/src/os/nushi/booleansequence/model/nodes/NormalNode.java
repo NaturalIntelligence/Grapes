@@ -13,11 +13,7 @@ public class NormalNode extends Node {
 
 	@Override
 	public boolean match(char[] ch, Counter index) {
-		if(super.value == ch[index.counter]){
-			super.capture(ch[index.counter]);
-			return true;
-		}
-		return false;
+		return super.value == ch[index.counter];
 	}
 	
 }
