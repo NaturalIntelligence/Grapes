@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import os.nushi.booleansequence.ExpressionIdentifier;
-import os.nushi.booleansequence.ds.primitive.CharArrList;
 import os.nushi.booleansequence.model.Counter;
 
 public abstract class  Node {
@@ -12,7 +11,6 @@ public abstract class  Node {
 	public Set<Node> links;
 	public boolean isEndNode;
 	public ExpressionIdentifier resultType;
-	public boolean iterable;
 	
 	public Node() {
 		this.links = new HashSet<Node>();
@@ -38,17 +36,6 @@ public abstract class  Node {
 	
 	public boolean isBlankNode() {
 		return this.value == '\u0000';
-	}
-	
-	private CharArrList list;
-	public boolean capture;
-	
-	public void captureTo(CharArrList list){
-		this.list = list;
-	}
-	
-	public void capture(char c){
-		list.add(c);
 	}
 	
 	public Node getNode(){

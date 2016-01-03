@@ -33,9 +33,9 @@ import os.nushi.booleansequence.ds.primitive.CharArrList;
 import os.nushi.booleansequence.ds.primitive.CharStack;
 import os.nushi.booleansequence.matcher.CoreMatcher;
 import os.nushi.booleansequence.matcher.ProgressiveMatcher;
+import os.nushi.booleansequence.model.Counter;
 import os.nushi.booleansequence.model.SequenceLength;
 import os.nushi.booleansequence.model.nodes.AnyNode;
-import os.nushi.booleansequence.model.nodes.CaptureNode;
 import os.nushi.booleansequence.model.nodes.LazyNode;
 import os.nushi.booleansequence.model.nodes.Node;
 import os.nushi.booleansequence.model.nodes.NormalNode;
@@ -193,31 +193,53 @@ public class BooleanSequence {
 	}
 
 	private Node getAnyNode() {
-		Node node= new AnyNode();
 		if(subsequencecapture) {
-			CaptureNode cNode = new CaptureNode(node);
-			cNode.captureTo(matchedSequence);
-			return cNode;
+			Node node= new AnyNode(){
+				@Override
+				public boolean match(char[] ch, Counter index) {
+					if(super.match(ch, index)){
+						matchedSequence.add(ch[index.counter]);
+						return true;
+					}
+					return false;
+				}
+			};
+			return node;
 		}
-		return node ;
+		return new AnyNode() ;
 	}
 
 	private Node getRangeNode(char from,char to) {
-		RangeNode node = new RangeNode(from,to);
 		if(subsequencecapture) {
-			CaptureNode cNode = new CaptureNode(node);
-			cNode.captureTo(matchedSequence);
-			return cNode;
+			RangeNode node = new RangeNode(from,to){
+				@Override
+				public boolean match(char[] ch, Counter index) {
+					if(super.match(ch, index)){
+						matchedSequence.add(ch[index.counter]);
+						return true;
+					}
+					return false;
+				}
+			};
+			return node;
 		}
-		return node;
+		return new RangeNode(from,to);
 	}
 	
 	private Node getNode(char ch){
 		if(subsequencecapture) {
-			NormalNode node = new NormalNode(ch);
-			CaptureNode cNode = new CaptureNode(node);
-			cNode.captureTo(matchedSequence);
-			return cNode;
+			NormalNode node = new NormalNode(ch){
+				@Override
+				public boolean match(char[] ch, Counter index) {
+					if(super.match(ch, index)){
+						matchedSequence.add(ch[index.counter]);
+						return true;
+					}
+					return false;
+				}
+			};
+			
+			return node;
 		}
 		return new NormalNode(ch);
 	}

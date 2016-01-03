@@ -27,8 +27,6 @@ SOFTWARE.
  */
 package os.nushi.booleansequence.matcher;
 
-import java.util.ArrayList;
-
 import os.nushi.booleansequence.BooleanIdentifier;
 import os.nushi.booleansequence.BooleanSequence;
 import os.nushi.booleansequence.ExpressionIdentifier;

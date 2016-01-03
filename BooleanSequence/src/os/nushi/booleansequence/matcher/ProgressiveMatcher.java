@@ -83,7 +83,7 @@ public class ProgressiveMatcher implements Matcher{
 	
 	private Node match(char[] ch,Counter index , Node nd) {
 		for (Node node : nd.links) {
-			if(node.match(ch,index)) return node;
+			if(node.match(ch,index)) return node.getNode();
 		}
 		return null;
 	}
