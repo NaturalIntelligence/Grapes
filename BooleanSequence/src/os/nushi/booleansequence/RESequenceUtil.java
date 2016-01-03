@@ -37,6 +37,7 @@ import os.nushi.booleansequence.model.nodes.Node;
  */
 public class RESequenceUtil {
 
+	
 	public static String toJson(BooleanSequence reSequence){
 		Node parentNode = reSequence.startNode;
 		Set<Node> pocessedNode = new HashSet<Node>();
@@ -58,7 +59,7 @@ public class RESequenceUtil {
 					jSonString = toJson(node,jSonString,pocessedNode);
 					jSonString += "},";
 				}
-				jSonString += "\b";
+				jSonString = jSonString.substring(0,jSonString.length()-1);
 				jSonString += "]";
 			}
 			jSonString += "}";
@@ -158,4 +159,18 @@ public class RESequenceUtil {
 		
 	}
 
+	public static Set<Node> getEndNodes(BooleanSequence reSequence){
+		Set<Node> nodes = new HashSet<Node>();
+		collectEndNodes(reSequence.startNode, nodes);
+		return nodes;
+	}
+	
+	private static void collectEndNodes(Node parentNode, Set<Node> nodes) {
+		for(Node node : parentNode.links){
+			collectEndNodes(node,nodes);
+		}
+		if(parentNode.isEndNode) {
+			nodes.add(parentNode);
+		}
+	}
 }
