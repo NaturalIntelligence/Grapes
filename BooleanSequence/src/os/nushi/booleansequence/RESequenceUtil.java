@@ -45,16 +45,20 @@ public class RESequenceUtil {
 	}
 	
 	private static String toJson(Node parentNode, String jSonString, Set<Node> pocessedNode){
-		if(parentNode.links.isEmpty()){
-			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) + "\", \"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)+"\" }";
+		if(parentNode.next.isEmpty()){
+			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) 
+			+ "\", \"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)
+			+"\", \"NodeType\" : \"" + parentNode.getClass().getCanonicalName() +"\"}";
 		}else{
-			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) + "\"";
+			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) 
+			+"\", \"NodeType\" : \"" + parentNode.getClass().getCanonicalName()
+			+ "\"";
 			if(parentNode.isEndNode) {
 				jSonString += ",\"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)+"\"";
 			}
 			if(!pocessedNode.contains(parentNode)){
 				jSonString += ",\"links\":[";
-				for(Node node : parentNode.links){
+				for(Node node : parentNode.next){
 					jSonString += "{";
 					jSonString = toJson(node,jSonString,pocessedNode);
 					jSonString += "},";
@@ -77,8 +81,8 @@ public class RESequenceUtil {
 	}
 	
 	public static void mergeSequences(BooleanSequence reSequenceL,BooleanSequence reSequenceR){
-		reSequenceL.startNode.links.addAll(reSequenceR.startNode.links);
-		mergeSequences(reSequenceL.startNode.links);
+		reSequenceL.startNode.next.addAll(reSequenceR.startNode.next);
+		mergeSequences(reSequenceL.startNode.next);
 		reSequenceL.updatePathLength();
 	}
 	
@@ -88,7 +92,7 @@ public class RESequenceUtil {
 			for (Node nodeR : links) {
 				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemov.contains(nodeL)){
 					mergeNodes(nodeL, nodeR);
-					mergeSequences(nodeL.links);
+					mergeSequences(nodeL.next);
 					toRemov.add(nodeR);
 				}
 			}
@@ -97,7 +101,7 @@ public class RESequenceUtil {
 	}
 
 	public static void mergeNodes(Node nodeL, Node nodeR) {
-		nodeL.links.addAll(nodeR.links);
+		nodeL.next.addAll(nodeR.next);
 		nodeL.isEndNode |= nodeR.isEndNode;
 		if(nodeL.resultType == null)
 			nodeL.resultType = nodeR.resultType;
@@ -124,11 +128,11 @@ public class RESequenceUtil {
 	}
 	
 	private static void count(Node parentNode, Set<Node> nodesToCount){
-		for(Node node : parentNode.links){
+		for(Node node : parentNode.next){
 			if(nodesToCount.contains(node)) continue;
 			count(node,nodesToCount);
 		}
-		nodesToCount.addAll(parentNode.links);
+		nodesToCount.addAll(parentNode.next);
 	}
 	
 
@@ -139,7 +143,7 @@ public class RESequenceUtil {
 	}
 	
 	private static void pathLength(Node parentNode, int counter,SequenceLength sequenceLength){
-		for(Node node : parentNode.links){
+		for(Node node : parentNode.next){
 			pathLength(node, counter+1,sequenceLength);
 		}
 		if(parentNode.isEndNode) {
@@ -166,7 +170,7 @@ public class RESequenceUtil {
 	}
 	
 	private static void collectEndNodes(Node parentNode, Set<Node> nodes) {
-		for(Node node : parentNode.links){
+		for(Node node : parentNode.next){
 			collectEndNodes(node,nodes);
 		}
 		if(parentNode.isEndNode) {

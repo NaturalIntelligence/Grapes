@@ -82,7 +82,7 @@ public class ProgressiveMatcherForCharIntMap {
 	}
 	
 	private Node match(char[] ch,Counter index , Node nd) {
-		for (Node node : nd.links) {
+		for (Node node : nd.next) {
 			if(node.match(ch,index)) return node.getNode();
 		}
 		return null;

@@ -8,17 +8,20 @@ import os.nushi.booleansequence.model.Counter;
 
 public abstract class  Node {
 	public char value;
-	public Set<Node> links;
+	public Set<Node> next;
+	public Set<Node> last;
 	public boolean isEndNode;
 	public ExpressionIdentifier resultType;
 	
 	public Node() {
-		this.links = new HashSet<Node>();
+		this.next = new HashSet<Node>();
+		this.last = new HashSet<Node>();
 	}
 	
 	public Node(char c) {
 		this.value = c;
-		this.links = new HashSet<Node>();
+		this.next = new HashSet<Node>();
+		this.last = new HashSet<Node>();
 	}
 	
 	@Override

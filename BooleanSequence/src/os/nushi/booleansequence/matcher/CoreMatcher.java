@@ -32,6 +32,7 @@ import os.nushi.booleansequence.BooleanSequence;
 import os.nushi.booleansequence.ExpressionIdentifier;
 import os.nushi.booleansequence.ds.primitive.CharArrList;
 import os.nushi.booleansequence.model.Counter;
+import os.nushi.booleansequence.model.nodes.IterationNode;
 import os.nushi.booleansequence.model.nodes.Node;
 
 public class CoreMatcher implements Matcher{
@@ -75,9 +76,16 @@ public class CoreMatcher implements Matcher{
 	}
 	
 	private Node match(char[] ch,Counter index , Node nd) {
-		for (Node node : nd.links) {
+		for (Node node : nd.next) {
 			if(node.match(ch,index)) return node.getNode();
 		}
+		/*if(nd instanceof IterationNode ){
+			return nd.getNode();
+		}else{
+			for (Node node : nd.next) {
+				if(node.match(ch,index)) return node.getNode();
+			}
+		}*/
 		return null;
 	}
 }

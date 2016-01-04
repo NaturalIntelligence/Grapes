@@ -44,12 +44,11 @@ import os.nushi.booleansequence.util.CharArrayUtil;
 import os.nushi.booleansequence.util.CharUtil;
 
 //TODO : possible improvements
-// a) combine all the nodes to allOfNode during minimize process : a-> b -> c => abc
-// b) combine [abc] to single anyOfNode 
+
 //https://swtch.com/~rsc/regexp/regexp1.html
 //to implement *,+ use stacking. so whenever assertion fails take the node from stack and start from back
 //Lazy/Progressive check supporting in //1 cases too
-//support for {},+,* 
+ 
 //Support for backslash chars
 /**
  * @author Amit Gupta
@@ -89,67 +88,52 @@ public class BooleanSequence {
 	private boolean subsequencecapture;
 	private boolean subsequence;
 	public boolean hasVariableLength;
+	Integer index;
 	
 	public BooleanSequence compile(){
-		Node beforeNode = null;
-		for (int i=0; i< re.length; i++) {
+		Node oldNode = null;
+		BooleanSequence subsequence = null;
+		index = 0;
+		for (index=0; index< re.length; index++) {
 			
-			if(re[i] == '('){
-				int startIndex = i+1;
-				CharStack stack = new CharStack();
-				while(true){
-					if(re[i] == '('){
-						stack.push('(');
-					}else if(re[i] == ')'){
-						stack.pop();
-						if(stack.size() == 0) break;
-					}
-					i++;
+			if(re[index] == '('){
+				CharArrList matchedSequence = new CharArrList();
+				matchedSequenceList.add(matchedSequence);//It'll store the result of captured sequence
+				
+				subsequence = getMeASubSequence();
+				subsequence.matchedSequence = matchedSequence;
+				subsequence.compile();
+				
+				//forward linking
+				currentNode.next.addAll(subsequence.startNode.next);
+				for (Node node : subsequence.startNode.next) {
+					node.last.add(currentNode);
 				}
 				
-				BooleanSequence subsequence = new BooleanSequence(CharArrayUtil.subArray(re, startIndex,i-1));
-				subsequence.subsequence = true;
-				CharArrList matchedSequence = new CharArrList();
-				matchedSequenceList.add(matchedSequence);
-				subsequence.matchedSequence = matchedSequence;
-				subsequence.subsequencecapture = this.capture;
-				subsequence.compile();
-				this.currentNode.links.addAll(subsequence.startNode.links);
-				beforeNode = currentNode;
-				this.currentNode = subsequence.endNode;
-			}else if(re[i] == '|'){
-				this.currentNode.links.add(endNode);
-				if(!this.subsequence) {
-					this.currentNode.isEndNode = true;
-					this.currentNode.resultType = expressionIdentifier;
-				}
-				this.currentNode = this.startNode;
-			}else if(re[i] == '['){
-				NormalNode blankNode = new NormalNode();
-				for(i++;re[i] != ']';i++){
-					if(re[i+1]=='-'){
-						Node node = getRangeNode(re[i],re[i+2]);
-						node.links.add(blankNode);
-						this.currentNode.links.add(node);
-						i=i+2;
-						continue;
+				oldNode = currentNode;
+				currentNode = subsequence.endNode;
+			}else if(re[index] == '|'){
+				closeTheCurrentSequence();
+				//Start new sequence
+				currentNode = this.startNode;
+			}else if(re[index] == '['){
+				oldNode = forwardLinking(generateNodesForBracketSequence());
+			}else if(re[index] == '?'){
+				jointLinking(oldNode);
+			}else if(re[index] == '.'){
+				oldNode = forwardLinking(getAnyNode());
+			}/*else if(re[i] == '+'){//1 or more
+				//convert end node of last sequence to iteration node
+				if(subsequence == null){
+					currentNode = getIterationNode(currentNode,1,-1,currentNode);
+				}else{
+					Set<Node> endNodes =  RESequenceUtil.getEndNodes(subsequence);
+					for (Node node : endNodes) {
+						node = getIterationNode(node,1,-1,subsequence.startNode);
 					}
-					Node node = getNode(re[i]);
-					node.links.add(blankNode);
-					this.currentNode.links.add(node);
 				}
-				beforeNode = this.currentNode;
-				this.currentNode = blankNode;
-			}else if(re[i] == '?'){
-				NormalNode blankNode = new NormalNode();
-				currentNode.links.add(blankNode);
-				beforeNode.links.add(blankNode);
-				currentNode = blankNode;
-			}else if(re[i] == '.'){
-				Node node = getAnyNode();
-				currentNode.links.add(node);
-				beforeNode = currentNode;
-				currentNode = node;
+				
+				hasVariableLength = true;
 			}else if(re[i] == '{'){//TODO
 				int start = ++i;
 				//read until } is found
@@ -160,37 +144,143 @@ public class BooleanSequence {
 				}
 				
 				int num = Integer.parseInt(new String(CharArrayUtil.subArray(re, start, i-1)));
-			}else if(re[i] == '\\'){
-				//add next char as plain Node
-				char c = re[++i];
-				Node node = null;
+			}*/else if(re[index] == '\\'){//add next char as plain Node
+				char c = re[++index];
+				
 				if(CharUtil.isDigit(c)){
-					hasVariableLength = true;
-					LazyNode lazynode = new LazyNode(c);
-					int position = Integer.parseInt(c+"");
-					lazynode.source(matchedSequenceList.get(position-1));
-					node = lazynode;
+					oldNode = forwardLinking(getLazyNode(c));
 				}else{
-					node = getNode(c);
+					oldNode = forwardLinking(getNode(c));
 				}
-				currentNode.links.add(node);
-				beforeNode = currentNode;
-				currentNode = node;
 			}else{
-				Node node = getNode(re[i]);
-				currentNode.links.add(node);
-				beforeNode = currentNode;
-				currentNode = node;
+				oldNode = forwardLinking(getNode(re[index]));
 			}
 			
 		}
-		this.currentNode.links.add(endNode);
-		if(!this.subsequence) {
-			this.currentNode.isEndNode = true;
-			this.currentNode.resultType = expressionIdentifier;
-		}
+		closeTheCurrentSequence();
 		return this;
 	}
+
+	private LazyNode getLazyNode(char c) {
+		hasVariableLength = true;
+		LazyNode lazynode = new LazyNode(c);
+		int position = Integer.parseInt(c+"");
+		lazynode.source(matchedSequenceList.get(position-1));//where to take the input from
+		return lazynode;
+	}
+
+	private void closeTheCurrentSequence() {
+		currentNode.next.add(endNode);
+		if(!this.subsequence) {
+			markCurrentNodeAsEndNode();
+		}
+	}
+
+	private void markCurrentNodeAsEndNode() {
+		currentNode.isEndNode = true;
+		currentNode.resultType = expressionIdentifier;
+	}
+
+	private BooleanSequence getMeASubSequence() {
+		BooleanSequence subsequence;
+		int startIndex = index+1;
+		
+		CharStack stack = new CharStack();
+		while(true){
+			if(re[index] == '('){
+				stack.push('(');
+			}else if(re[index] == ')'){
+				stack.pop();
+				if(stack.size() == 0) break;
+			}
+			index++;
+		}
+		
+		subsequence = new BooleanSequence(CharArrayUtil.subArray(re, startIndex,index-1));
+		subsequence.subsequence = true;
+		subsequence.subsequencecapture = this.capture;
+		return subsequence;
+	}
+
+	/**
+	 * Bracket sequence can have either normal node or range node
+	 * bracket : [a-zA-Z0-9%] = 4 nodes
+	 * @return
+	 */
+	private Set<Node> generateNodesForBracketSequence() {
+		Set<Node> newNodes = new HashSet<Node>();
+		for(index++;re[index] != ']';index++){
+			if(re[index+1]=='-'){
+				newNodes.add(getRangeNode(re[index],re[index+2]));
+				index=index+2;
+				continue;
+			}
+			newNodes.add(getNode(re[index]));
+		}
+		return newNodes;
+	}
+	
+	/**
+	 * old->current => old->current; old->joint; current->joint  
+	 * @param oldNode
+	 * @return
+	 */
+	private void jointLinking(Node oldNode) {
+		NormalNode jointNode = new NormalNode(); //blank node
+		
+		currentNode.next.add(jointNode);
+		jointNode.last.add(currentNode);
+		
+		oldNode.next.add(jointNode);
+		jointNode.last.add(currentNode);
+		
+		currentNode = jointNode;//go forward
+	}
+	/**
+	 * old(N1)->current(N0) new(N) => N1->old(N0)->current(N)
+	 * @param newNode
+	 * @return
+	 */
+	private Node forwardLinking(Node newNode) {
+		currentNode.next.add(newNode);
+		newNode.last.add(currentNode);	
+		
+		//go forward
+		Node  oldNode = currentNode;
+		currentNode = newNode;	
+		
+		return oldNode;
+	}
+	
+	
+	private Node forwardLinking(Set<Node> newNodes) {
+		return forwardLinking(newNodes, new NormalNode());
+	}
+	
+	
+	private Node forwardLinking(Set<Node> newNodes, Node jointNode) {
+		currentNode.next.addAll(newNodes);
+		for (Node node : newNodes) {
+			node.last.add(currentNode);	
+		}
+		
+		//go forward
+		Node  oldNode = currentNode;
+		
+		for (Node node : newNodes) {
+			node.next.add(jointNode);	
+		}
+		currentNode = jointNode;	
+		
+		return oldNode;
+	}
+	
+	/*private Node getIterationNode(Node node, int min, int max, Node startNode) {
+		IterationNode iterationNode = new IterationNode(node);
+		iterationNode.setIterationRange(min, max);
+		iterationNode.setStartingNode(startNode);
+		return iterationNode;
+	}*/
 
 	private Node getAnyNode() {
 		if(subsequencecapture) {
@@ -257,8 +347,8 @@ public class BooleanSequence {
 	private void removeBlankNodes(Node parentNode) {
 		Set<Node> toRemove = new HashSet<Node>();
 		
-		for(Node node : parentNode.links){
-			if(!node.links.isEmpty())
+		for(Node node : parentNode.next){
+			if(!node.next.isEmpty())
 				removeBlankNodes(node);
 			
 			if(node.isBlankNode()){
@@ -271,11 +361,11 @@ public class BooleanSequence {
 				}
 			}
 		}
-		parentNode.links.removeAll(toRemove);
+		parentNode.next.removeAll(toRemove);
 		for(Node node : toRemove){
-			parentNode.links.addAll(node.links);
+			parentNode.next.addAll(node.next);
 		}
-		RESequenceUtil.mergeDuplicateNodes(parentNode.links);
+		RESequenceUtil.mergeDuplicateNodes(parentNode.next);
 	}
 
 	public int minPathLength;
