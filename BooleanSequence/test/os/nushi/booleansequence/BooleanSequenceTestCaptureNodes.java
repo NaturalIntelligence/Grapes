@@ -31,7 +31,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("abcd");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -46,7 +46,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a(bc)d");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -62,7 +62,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([bc])d\\1");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -85,7 +85,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([bc])d");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,3);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -102,7 +102,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([m-z])d");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,3);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -119,7 +119,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([m-z]b.)d");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,5);
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -134,7 +134,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([m-z]b.?)d");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -154,8 +154,8 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([bc])d(mn)?");
 		seq.capture = true;
 		seq.compile().minimize();
-		System.out.println(RESequenceUtil.toJson(seq));
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		System.out.println(BooleanSequenceUtil.toJson(seq));
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -178,7 +178,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,7);
 		Assert.assertEquals(depth.max,8);
 		
@@ -216,7 +216,7 @@ public class BooleanSequenceTestCaptureNodes {
 		BooleanSequence seq = new BooleanSequence("a([bc])d(mn)?");
 		seq.capture = true;
 		seq.compile();seq.minimize();
-		System.out.println(RESequenceUtil.toJson(seq));
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 	}
 	
 }

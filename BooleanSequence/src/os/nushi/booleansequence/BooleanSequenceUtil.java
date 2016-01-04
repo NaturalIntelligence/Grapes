@@ -35,7 +35,7 @@ import os.nushi.booleansequence.model.nodes.Node;
  * @author Amit Gupta
  *
  */
-public class RESequenceUtil {
+public class BooleanSequenceUtil {
 
 	
 	public static String toJson(BooleanSequence reSequence){

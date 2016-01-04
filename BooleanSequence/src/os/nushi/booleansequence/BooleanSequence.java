@@ -365,20 +365,20 @@ public class BooleanSequence {
 		for(Node node : toRemove){
 			parentNode.next.addAll(node.next);
 		}
-		RESequenceUtil.mergeDuplicateNodes(parentNode.next);
+		BooleanSequenceUtil.mergeDuplicateNodes(parentNode.next);
 	}
 
 	public int minPathLength;
 	public int maxPathLength;
 	
 	public void updatePathLength(){
-		SequenceLength depth = RESequenceUtil.calculateDepth(this);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(this);
 		minPathLength = depth.min;
 		maxPathLength = depth.max;
 	}
 	
 	public BooleanSequence merge(BooleanSequence sequence){
-		RESequenceUtil.mergeSequences(this, sequence);
+		BooleanSequenceUtil.mergeSequences(this, sequence);
 		return this;
 	}
 	

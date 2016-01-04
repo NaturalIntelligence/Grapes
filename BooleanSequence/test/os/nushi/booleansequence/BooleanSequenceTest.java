@@ -29,21 +29,21 @@ public class BooleanSequenceTest {
 	public void testMinimizationAndOptimization() {
 		BooleanSequence seq = new BooleanSequence("ab(cd|ef)gh");
 		seq.compile();
-		Assert.assertEquals(RESequenceUtil.count(seq),10);
+		Assert.assertEquals(BooleanSequenceUtil.count(seq),10);
 		seq.minimize();
-		Assert.assertEquals(RESequenceUtil.count(seq),8);
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		Assert.assertEquals(BooleanSequenceUtil.count(seq),8);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,6);
 		Assert.assertEquals(depth.max,6);
 		
 		seq = new BooleanSequence("ab(cde|c)?mn");
 		seq.compile();
-		Assert.assertEquals(RESequenceUtil.count(seq),11);
+		Assert.assertEquals(BooleanSequenceUtil.count(seq),11);
 		seq.minimize();
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,7);
-		Assert.assertEquals(RESequenceUtil.count(seq),7);
+		Assert.assertEquals(BooleanSequenceUtil.count(seq),7);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abmn".toCharArray()));
 		assertTrue(matcher.match("abcdemn".toCharArray()));
@@ -55,17 +55,17 @@ public class BooleanSequenceTest {
 	public void testMerge() {
 		BooleanSequence seq = new BooleanSequence("ab(cd|ef)?");
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,4);
 		
 		BooleanSequence seq2 = new BooleanSequence("ab(cd|gh)i");
 		seq2.compile().minimize();
-		SequenceLength depth2 = RESequenceUtil.calculateDepth(seq2);
+		SequenceLength depth2 = BooleanSequenceUtil.calculateDepth(seq2);
 		Assert.assertEquals(depth2.min,5);
 		Assert.assertEquals(depth2.max,5);
-		RESequenceUtil.mergeSequences(seq,seq2);
-		depth = RESequenceUtil.calculateDepth(seq);
+		BooleanSequenceUtil.mergeSequences(seq,seq2);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -81,7 +81,7 @@ public class BooleanSequenceTest {
 	public void testGroupingWithOr() {
 		BooleanSequence seq = new BooleanSequence("ab(cd|ef)");
 		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -93,7 +93,7 @@ public class BooleanSequenceTest {
 		seq = new BooleanSequence("(ab|cd)ef");
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
 		assertTrue(matcher.match("cdef".toCharArray()));
@@ -102,7 +102,7 @@ public class BooleanSequenceTest {
 		seq = new BooleanSequence("ab(cd|ef)gh");
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,6);
 		Assert.assertEquals(depth.max,6);
 		assertTrue(matcher.match("abcdgh".toCharArray()));
@@ -117,7 +117,7 @@ public class BooleanSequenceTest {
 	public void testOptional() {
 		BooleanSequence seq = new BooleanSequence("ab?c");
 		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,3);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -132,7 +132,7 @@ public class BooleanSequenceTest {
 		
 		seq = new BooleanSequence("(ab|cd)?ef");
 		seq.compile();seq.minimize();
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,4);
 		matcher.setSequence(seq);
@@ -142,7 +142,7 @@ public class BooleanSequenceTest {
 		
 		seq = new BooleanSequence("(ab|c?d)?ef");
 		seq.compile();seq.minimize();
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,4);
 		matcher.setSequence(seq);
@@ -155,7 +155,7 @@ public class BooleanSequenceTest {
 		seq = new BooleanSequence("(ab|c?d)?");
 		seq.compile();
 		seq.minimize();
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,0);
 		Assert.assertEquals(depth.max,2);
 		matcher.setSequence(seq);
@@ -166,7 +166,7 @@ public class BooleanSequenceTest {
 		
 		seq = new BooleanSequence("ab(ab|c?d)?");
 		seq.compile();seq.minimize();
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,4);
 		matcher.setSequence(seq);
@@ -178,7 +178,7 @@ public class BooleanSequenceTest {
 	public void testOr() {
 		BooleanSequence seq = new BooleanSequence("ab|cd");
 		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,2);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -207,7 +207,7 @@ public class BooleanSequenceTest {
 	public void testBackSlash() {
 		BooleanSequence seq = new BooleanSequence("ab\\?c");
 		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -225,10 +225,10 @@ public class BooleanSequenceTest {
 	public void testRange() {
 		BooleanSequence seq = new BooleanSequence("ab[a-z0-9A-Z]\\[c");
 		seq.compile();
-		System.out.println(RESequenceUtil.toJson(seq));
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 		seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
-		System.out.println(RESequenceUtil.toJson(seq));
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 		Assert.assertEquals(depth.min,5);
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -244,7 +244,7 @@ public class BooleanSequenceTest {
 		BooleanSequence seq = new BooleanSequence("ab.\\.c");
 		seq.compile();
 		seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,5);
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
@@ -262,10 +262,10 @@ public class BooleanSequenceTest {
 	public void testBracket() {
 		BooleanSequence seq = new BooleanSequence("a[bc]d");
 		seq.compile();seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,3);
-		System.out.println(RESequenceUtil.toJson(seq));
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abd".toCharArray()));
 		assertTrue(matcher.match("acd".toCharArray()));
@@ -275,7 +275,7 @@ public class BooleanSequenceTest {
 		seq = new BooleanSequence("a[bc]?d");
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,3);
 		assertTrue(matcher.match("abd".toCharArray()));
@@ -286,10 +286,10 @@ public class BooleanSequenceTest {
 		
 		seq = new BooleanSequence("a([bc]|d)?e");
 		seq.compile();
-		System.out.println(RESequenceUtil.count(seq));
+		System.out.println(BooleanSequenceUtil.count(seq));
 		seq.minimize();
-		System.out.println(RESequenceUtil.count(seq));
-		depth = RESequenceUtil.calculateDepth(seq);
+		System.out.println(BooleanSequenceUtil.count(seq));
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,3);
 		matcher = seq.getCoreMatcher();
@@ -308,7 +308,7 @@ public class BooleanSequenceTest {
 		BooleanSequence seq = new BooleanSequence("a([bc])d(mn)?");
 		seq.capture = true;
 		seq.compile();seq.minimize();
-		System.out.println(RESequenceUtil.toJson(seq));
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 	}
 	
 	
@@ -318,7 +318,7 @@ public class BooleanSequenceTest {
 		BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
 		seq.capture = true;
 		seq.compile().minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,7);
 		Assert.assertEquals(depth.max,8);
 		
@@ -352,7 +352,7 @@ public class BooleanSequenceTest {
 		seq.capture = false;
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
-		depth = RESequenceUtil.calculateDepth(seq);
+		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,1);
 		Assert.assertEquals(depth.max,3);
 		Assert.assertEquals(PASSED,matcher.match('a'));//PASSED
@@ -366,7 +366,7 @@ public class BooleanSequenceTest {
 		seq.capture = true;
 		seq.compile();
 		seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min, 7);
 		Assert.assertEquals(depth.max, 8);
 		ProgressiveMatcher matcher = new ProgressiveMatcher(seq);
@@ -400,7 +400,7 @@ public class BooleanSequenceTest {
 		seq.capture = false;
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
-		System.out.println(RESequenceUtil.toJson(seq));
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 		Assert.assertEquals(PASSED,matcher.match('a'));//PASSED
 		Assert.assertEquals(PASSED,matcher.match("abc".toCharArray()));//PASSED
 		Assert.assertEquals(FAILED,matcher.match("abce".toCharArray()));//FAILED
@@ -412,7 +412,7 @@ public class BooleanSequenceTest {
 		//seq.capture = true;
 		seq.compile();
 		seq.minimize();
-		SequenceLength depth = RESequenceUtil.calculateDepth(seq);
+		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min, 3);
 		Assert.assertEquals(depth.max, 5);
 	}
@@ -477,8 +477,8 @@ public class BooleanSequenceTest {
 		//angleSeq.merge(cordinateSeq).merge(tempratureSeq);
 		
 		rootSeq.merge(angleSeq).merge(cordinateSeq).merge(tempratureSeq);
-		System.out.println(RESequenceUtil.count(rootSeq));
-		System.out.println(RESequenceUtil.toJson(rootSeq));
+		System.out.println(BooleanSequenceUtil.count(rootSeq));
+		System.out.println(BooleanSequenceUtil.toJson(rootSeq));
 		
 		ProgressiveMatcher matcher = rootSeq.getProgressiveMatcher();
 		Assert.assertEquals(TokenType.ANGLE,matcher.match("0°".toCharArray()));
