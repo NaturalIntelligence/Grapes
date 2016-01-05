@@ -48,10 +48,13 @@ public class BooleanSequenceUtil {
 		if(parentNode.next.isEmpty()){
 			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) 
 			+ "\", \"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)
-			+"\", \"NodeType\" : \"" + parentNode.getClass().getCanonicalName() +"\"}";
+			+"\", \"NodeType\" : \"" + parentNode.getClass().getSimpleName() 
+			+"\", \"LastNodes\" : \"" + parentNode.last.toString()
+			+"\"}";
 		}else{
 			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) 
-			+"\", \"NodeType\" : \"" + parentNode.getClass().getCanonicalName()
+			+"\", \"NodeType\" : \"" + parentNode.getClass().getSimpleName()
+			+"\", \"LastNodes\" : \"" + parentNode.last.toString()
 			+ "\"";
 			if(parentNode.isEndNode) {
 				jSonString += ",\"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)+"\"";
@@ -102,6 +105,7 @@ public class BooleanSequenceUtil {
 
 	public static void mergeNodes(Node nodeL, Node nodeR) {
 		nodeL.next.addAll(nodeR.next);
+		nodeL.last.addAll(nodeR.last);
 		nodeL.isEndNode |= nodeR.isEndNode;
 		if(nodeL.resultType == null)
 			nodeL.resultType = nodeR.resultType;

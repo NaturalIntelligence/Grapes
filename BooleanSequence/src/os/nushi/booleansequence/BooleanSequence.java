@@ -161,24 +161,18 @@ public class BooleanSequence {
 		return this;
 	}
 
-	private LazyNode getLazyNode(char c) {
-		hasVariableLength = true;
-		LazyNode lazynode = new LazyNode(c);
-		int position = Integer.parseInt(c+"");
-		lazynode.source(matchedSequenceList.get(position-1));//where to take the input from
-		return lazynode;
-	}
+
 
 	private void closeTheCurrentSequence() {
 		currentNode.next.add(endNode);
 		if(!this.subsequence) {
-			markCurrentNodeAsEndNode();
+			markEndNode(currentNode);
 		}
 	}
-
-	private void markCurrentNodeAsEndNode() {
-		currentNode.isEndNode = true;
-		currentNode.resultType = expressionIdentifier;
+	
+	private void markEndNode(Node parentNode) {
+		parentNode.isEndNode = true;
+		parentNode.resultType = expressionIdentifier;
 	}
 
 	private BooleanSequence getMeASubSequence() {
@@ -243,7 +237,8 @@ public class BooleanSequence {
 	 */
 	private Node forwardLinking(Node newNode) {
 		currentNode.next.add(newNode);
-		newNode.last.add(currentNode);	
+		if(!currentNode.isBlankNode())
+			newNode.last.add(currentNode);	
 		
 		//go forward
 		Node  oldNode = currentNode;
@@ -273,6 +268,14 @@ public class BooleanSequence {
 		currentNode = jointNode;	
 		
 		return oldNode;
+	}
+	
+	private LazyNode getLazyNode(char c) {
+		hasVariableLength = true;
+		LazyNode lazynode = new LazyNode(c);
+		int position = Integer.parseInt(c+"");
+		lazynode.source(matchedSequenceList.get(position-1));//where to take the input from
+		return lazynode;
 	}
 	
 	/*private Node getIterationNode(Node node, int min, int max, Node startNode) {
@@ -353,8 +356,7 @@ public class BooleanSequence {
 			
 			if(node.isBlankNode()){
 				if(node.isEndNode){
-					parentNode.isEndNode = true;
-					parentNode.resultType = expressionIdentifier;
+					markEndNode(parentNode);
 					toRemove.add(node);
 				}else{
 					toRemove.add(node);
@@ -364,9 +366,15 @@ public class BooleanSequence {
 		parentNode.next.removeAll(toRemove);
 		for(Node node : toRemove){
 			parentNode.next.addAll(node.next);
+			for(Node nextNode : node.next){
+				nextNode.last.remove(node);
+				nextNode.last.addAll(node.last);
+			}
 		}
 		BooleanSequenceUtil.mergeDuplicateNodes(parentNode.next);
 	}
+
+
 
 	public int minPathLength;
 	public int maxPathLength;
