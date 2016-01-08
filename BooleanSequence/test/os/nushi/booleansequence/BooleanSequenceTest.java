@@ -29,7 +29,7 @@ public class BooleanSequenceTest {
 	public void testMinimizationAndOptimization() {
 		BooleanSequence seq = new BooleanSequence("ab(cd|ef)gh");
 		seq.compile();
-		Assert.assertEquals(BooleanSequenceUtil.count(seq),10);
+		Assert.assertEquals(9,BooleanSequenceUtil.count(seq));
 		seq.minimize();
 		Assert.assertEquals(BooleanSequenceUtil.count(seq),8);
 		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
@@ -38,7 +38,7 @@ public class BooleanSequenceTest {
 		
 		seq = new BooleanSequence("ab(cde|c)?mn");
 		seq.compile();
-		Assert.assertEquals(BooleanSequenceUtil.count(seq),11);
+		Assert.assertEquals(10,BooleanSequenceUtil.count(seq));
 		seq.minimize();
 		depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
@@ -293,6 +293,8 @@ public class BooleanSequenceTest {
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,3);
 		matcher = seq.getCoreMatcher();
+		System.out.println(BooleanSequenceUtil.toJson(seq));
+		System.out.println(BooleanSequenceUtil.count(seq));
 		assertTrue(matcher.match("abe".toCharArray()));
 		assertTrue(matcher.match("ace".toCharArray()));
 		assertTrue(matcher.match("ade".toCharArray()));

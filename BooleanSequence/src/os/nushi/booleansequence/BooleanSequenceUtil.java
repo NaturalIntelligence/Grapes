@@ -105,6 +105,11 @@ public class BooleanSequenceUtil {
 
 	public static void mergeNodes(Node nodeL, Node nodeR) {
 		nodeL.next.addAll(nodeR.next);
+		//update references
+		for (Node nextNode : nodeR.next) {
+			nextNode.last.remove(nodeR);
+			nextNode.last.add(nodeL);
+		}
 		nodeL.last.addAll(nodeR.last);
 		nodeL.isEndNode |= nodeR.isEndNode;
 		if(nodeL.resultType == null)

@@ -24,6 +24,7 @@ SOFTWARE.
  */
 package os.nushi.booleansequence;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import os.nushi.booleansequence.matcher.ProgressiveMatcher;
 import os.nushi.booleansequence.model.Counter;
 import os.nushi.booleansequence.model.SequenceLength;
 import os.nushi.booleansequence.model.nodes.AnyNode;
+import os.nushi.booleansequence.model.nodes.IterationNode;
 import os.nushi.booleansequence.model.nodes.LazyNode;
 import os.nushi.booleansequence.model.nodes.Node;
 import os.nushi.booleansequence.model.nodes.NormalNode;
@@ -104,12 +106,9 @@ public class BooleanSequence {
 				subsequence.matchedSequence = matchedSequence;
 				subsequence.compile();
 				
-				//forward linking
-				currentNode.next.addAll(subsequence.startNode.next);
-				for (Node node : subsequence.startNode.next) {
-					node.last.add(currentNode);
-				}
+				BooleanSequenceUtil.mergeNodes(currentNode, subsequence.startNode);
 				
+				//forward linking
 				oldNode = currentNode;
 				currentNode = subsequence.endNode;
 			}else if(re[index] == '|'){
@@ -122,18 +121,36 @@ public class BooleanSequence {
 				jointLinking(oldNode);
 			}else if(re[index] == '.'){
 				oldNode = forwardLinking(getAnyNode());
-			}/*else if(re[i] == '+'){//1 or more
+			}/*else if(re[index] == '+'){//1 or more
 				//convert end node of last sequence to iteration node
-				if(subsequence == null){
-					currentNode = getIterationNode(currentNode,1,-1,currentNode);
-				}else{
-					Set<Node> endNodes =  RESequenceUtil.getEndNodes(subsequence);
-					for (Node node : endNodes) {
-						node = getIterationNode(node,1,-1,subsequence.startNode);
+				
+				if(currentNode.isJointNode()){
+					//Go one more step backward
+					Set<Node> lastNodes = new HashSet<Node>(currentNode.last);
+					currentNode.last.clear();
+					for (Node node : lastNodes) {
+						IterationNode iNode = getIterationNode(node,1,-1,node);
+						iNode.setStartingNode(iNode);
+						//update references
+						for (Node lastNode : node.last) {
+							lastNode.next.remove(node);
+							lastNode.next.add(iNode);
+						}
+						currentNode.last.add(iNode);
 					}
+				}else{
+					Node iNode = getIterationNode(currentNode,1,-1,currentNode);
+					//update references
+					for (Node lastNode : currentNode.last) {
+						lastNode.next.remove(currentNode);
+						lastNode.next.add(iNode);
+					}
+					currentNode = iNode;
 				}
+
 				
 				hasVariableLength = true;
+				subsequence = null;
 			}else if(re[i] == '{'){//TODO
 				int start = ++i;
 				//read until } is found
@@ -164,9 +181,16 @@ public class BooleanSequence {
 
 
 	private void closeTheCurrentSequence() {
-		currentNode.next.add(endNode);
 		if(!this.subsequence) {
 			markEndNode(currentNode);
+		}else{
+			if(currentNode.isJointNode()){
+				endNode = currentNode;
+			}else{
+				currentNode.next.add(endNode);
+				endNode.last.add(currentNode);	
+			}
+			
 		}
 	}
 	
@@ -237,8 +261,8 @@ public class BooleanSequence {
 	 */
 	private Node forwardLinking(Node newNode) {
 		currentNode.next.add(newNode);
-		if(!currentNode.isBlankNode())
-			newNode.last.add(currentNode);	
+		//if(!currentNode.isJointNode())
+		newNode.last.add(currentNode);	
 		
 		//go forward
 		Node  oldNode = currentNode;
@@ -256,15 +280,14 @@ public class BooleanSequence {
 	private Node forwardLinking(Set<Node> newNodes, Node jointNode) {
 		currentNode.next.addAll(newNodes);
 		for (Node node : newNodes) {
-			node.last.add(currentNode);	
+			//if(!node.isJointNode())
+			node.last.add(currentNode);
+			node.next.add(jointNode);
+			jointNode.last.add(node);
 		}
 		
-		//go forward
+		//go forward		
 		Node  oldNode = currentNode;
-		
-		for (Node node : newNodes) {
-			node.next.add(jointNode);	
-		}
 		currentNode = jointNode;	
 		
 		return oldNode;
@@ -278,13 +301,13 @@ public class BooleanSequence {
 		return lazynode;
 	}
 	
-	/*private Node getIterationNode(Node node, int min, int max, Node startNode) {
+	private IterationNode getIterationNode(Node node, int min, int max, Node startNode) {
 		IterationNode iterationNode = new IterationNode(node);
 		iterationNode.setIterationRange(min, max);
 		iterationNode.setStartingNode(startNode);
 		return iterationNode;
-	}*/
-
+	}
+	
 	private Node getAnyNode() {
 		if(subsequencecapture) {
 			Node node= new AnyNode(){
@@ -354,7 +377,7 @@ public class BooleanSequence {
 			if(!node.next.isEmpty())
 				removeBlankNodes(node);
 			
-			if(node.isBlankNode()){
+			if(node.isJointNode()){
 				if(node.isEndNode){
 					markEndNode(parentNode);
 					toRemove.add(node);
