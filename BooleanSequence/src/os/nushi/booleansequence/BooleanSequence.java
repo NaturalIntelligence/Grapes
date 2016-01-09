@@ -24,7 +24,6 @@ SOFTWARE.
  */
 package os.nushi.booleansequence;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +36,6 @@ import os.nushi.booleansequence.matcher.ProgressiveMatcher;
 import os.nushi.booleansequence.model.Counter;
 import os.nushi.booleansequence.model.SequenceLength;
 import os.nushi.booleansequence.model.nodes.AnyNode;
-import os.nushi.booleansequence.model.nodes.IterationNode;
 import os.nushi.booleansequence.model.nodes.LazyNode;
 import os.nushi.booleansequence.model.nodes.Node;
 import os.nushi.booleansequence.model.nodes.NormalNode;
@@ -184,13 +182,8 @@ public class BooleanSequence {
 		if(!this.subsequence) {
 			markEndNode(currentNode);
 		}else{
-			if(currentNode.isJointNode()){
-				endNode = currentNode;
-			}else{
-				currentNode.next.add(endNode);
-				endNode.last.add(currentNode);	
-			}
-			
+			currentNode.next.add(endNode);
+			endNode.last.add(currentNode);	
 		}
 	}
 	
@@ -301,12 +294,12 @@ public class BooleanSequence {
 		return lazynode;
 	}
 	
-	private IterationNode getIterationNode(Node node, int min, int max, Node startNode) {
+	/*private IterationNode getIterationNode(Node node, int min, int max, Node startNode) {
 		IterationNode iterationNode = new IterationNode(node);
 		iterationNode.setIterationRange(min, max);
 		iterationNode.setStartingNode(startNode);
 		return iterationNode;
-	}
+	}*/
 	
 	private Node getAnyNode() {
 		if(subsequencecapture) {
@@ -365,11 +358,12 @@ public class BooleanSequence {
 	public BooleanSequence minimize(){
 		Node parentNode = this.startNode;
 		removeBlankNodes(parentNode);
+		BooleanSequenceUtil.mergeAllDuplicateNodes(parentNode);
 		System.gc();
 		updatePathLength();
 		return this;
 	}
-
+	
 	private void removeBlankNodes(Node parentNode) {
 		Set<Node> toRemove = new HashSet<Node>();
 		
@@ -396,7 +390,6 @@ public class BooleanSequence {
 		}
 		BooleanSequenceUtil.mergeDuplicateNodes(parentNode.next);
 	}
-
 
 
 	public int minPathLength;

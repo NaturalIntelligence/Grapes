@@ -46,9 +46,11 @@ public class BooleanSequenceUtil {
 	
 	private static String toJson(Node parentNode, String jSonString, Set<Node> pocessedNode){
 		if(parentNode.next.isEmpty()){
-			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) 
-			+ "\", \"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)
-			+"\", \"NodeType\" : \"" + parentNode.getClass().getSimpleName() 
+			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) ;
+			if(parentNode.isEndNode) {
+				jSonString += "\",\"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode);
+			}
+			jSonString += "\", \"NodeType\" : \"" + parentNode.getClass().getSimpleName() 
 			+"\", \"LastNodes\" : \"" + parentNode.last.toString()
 			+"\"}";
 		}else{
@@ -105,15 +107,16 @@ public class BooleanSequenceUtil {
 
 	public static void mergeNodes(Node nodeL, Node nodeR) {
 		nodeL.next.addAll(nodeR.next);
+		nodeL.last.addAll(nodeR.last);
+			nodeL.isEndNode |= nodeR.isEndNode;
+			if(nodeL.resultType == null)
+				nodeL.resultType = nodeR.resultType;	
+
 		//update references
 		for (Node nextNode : nodeR.next) {
 			nextNode.last.remove(nodeR);
 			nextNode.last.add(nodeL);
 		}
-		nodeL.last.addAll(nodeR.last);
-		nodeL.isEndNode |= nodeR.isEndNode;
-		if(nodeL.resultType == null)
-			nodeL.resultType = nodeR.resultType;
 	}
 	
 	public static void mergeDuplicateNodes(Set<Node> links) {
@@ -127,6 +130,13 @@ public class BooleanSequenceUtil {
 			}
 		}
 		links.removeAll(toRemov);
+	}
+	
+	public static void mergeAllDuplicateNodes(Node parentNode){
+		BooleanSequenceUtil.mergeDuplicateNodes(parentNode.next);
+		for(Node node : parentNode.next){
+			mergeAllDuplicateNodes(node);
+		}
 	}
 	
 	public static int count(BooleanSequence reSequence){

@@ -1,8 +1,6 @@
 package os.nushi.booleansequence.model.nodes;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import os.nushi.booleansequence.ExpressionIdentifier;
@@ -11,19 +9,19 @@ import os.nushi.booleansequence.model.Counter;
 public abstract class  Node {
 	public char value;
 	public Set<Node> next;
-	public List<Node> last;
+	public Set<Node> last;
 	public boolean isEndNode;
 	public ExpressionIdentifier resultType;
 	
 	public Node() {
 		this.next = new HashSet<Node>();
-		this.last = new ArrayList<Node>();
+		this.last = new HashSet<Node>();
 	}
 	
 	public Node(char c) {
 		this.value = c;
 		this.next = new HashSet<Node>();
-		this.last = new ArrayList<Node>();
+		this.last = new HashSet<Node>();
 	}
 	
 	@Override
