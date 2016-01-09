@@ -97,6 +97,8 @@ In addition of this; There are many other features;
   
 * **Custom return type** : Instead of just returning whether your string is matching to a sequence or not, you can also return custom type. It is basically helpful when you merge multiple type of expressions. You can refer above example for the same. By default it returns : PASSED, MATCHED, FAILED.
 	
+* **Optimized expressions** : Whether you write "bc|bcd|bcde" , "bc(d|de)?", or "bc(de?)?", Bollean Sequence Parser parses the same sequence. Hence the performance of evaluating all mentioned 3 expressions is same.
+
 and more ...
 
 ### Supported RE symbols
@@ -113,11 +115,11 @@ Currently Boolean Sequence is supporting following RE symbols
 ### Next plan
 My immediate plans to support 
 * Frequence {min,max}, {,max}, {min,} , '+', '*'
-* Convert into gradle project. So that you can use generated jar directly instead of compiling the project by yourself
+* Convert into gradle project. So that you can use generated jar directly instead of compiling the project by yourself [done]
 
 
 ### Future Plan
-* Improving JSON to Graph view tool
+* Improving "JSON to Graph" view tool
 * Laziness in case of dynamic selection
 * Making it thread safe
 * Supporting more RE symbols
