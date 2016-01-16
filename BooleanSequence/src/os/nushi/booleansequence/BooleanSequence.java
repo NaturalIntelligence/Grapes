@@ -40,6 +40,7 @@ import os.nushi.booleansequence.model.nodes.LazyNode;
 import os.nushi.booleansequence.model.nodes.Node;
 import os.nushi.booleansequence.model.nodes.NormalNode;
 import os.nushi.booleansequence.model.nodes.RangeNode;
+import os.nushi.booleansequence.model.nodes.SubSequenceNode;
 import os.nushi.booleansequence.util.CharArrayUtil;
 import os.nushi.booleansequence.util.CharUtil;
 
@@ -104,11 +105,13 @@ public class BooleanSequence {
 				subsequence.matchedSequence = matchedSequence;
 				subsequence.compile();
 				
-				BooleanSequenceUtil.mergeNodes(currentNode, subsequence.startNode);
+				//BooleanSequenceUtil.mergeNodes(currentNode, subsequence.startNode);
+				SubSequenceNode newNode = new SubSequenceNode(subsequence);
 				
 				//forward linking
-				oldNode = currentNode;
-				currentNode = subsequence.endNode;
+				oldNode = forwardLinking(newNode);
+				/*oldNode = currentNode;
+				currentNode = subsequence.endNode;*/
 			}else if(re[index] == '|'){
 				closeTheCurrentSequence();
 				//Start new sequence
@@ -172,19 +175,24 @@ public class BooleanSequence {
 			}
 			
 		}
-		closeTheCurrentSequence();
+		if(!this.subsequence) {
+			markEndNode( currentNode);
+		}
 		return this;
 	}
-
-
-
-	private void closeTheCurrentSequence() {
+/*
+	private void closeSequence() {
 		if(!this.subsequence) {
-			markEndNode(currentNode);
+			markEndNode( currentNode);
 		}else{
 			currentNode.next.add(endNode);
 			endNode.last.add(currentNode);	
 		}
+	}*/
+
+	private void closeTheCurrentSequence() {
+		currentNode.next.add(endNode);
+		endNode.last.add(currentNode);	
 	}
 	
 	private void markEndNode(Node parentNode) {

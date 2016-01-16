@@ -27,23 +27,30 @@ SOFTWARE.
  */
 package os.nushi.booleansequence.matcher;
 
-import os.nushi.booleansequence.BooleanIdentifier;
+import static os.nushi.booleansequence.BooleanIdentifier.*;
 import os.nushi.booleansequence.BooleanSequence;
 import os.nushi.booleansequence.ExpressionIdentifier;
 import os.nushi.booleansequence.ds.primitive.CharArrList;
 import os.nushi.booleansequence.model.Counter;
-import os.nushi.booleansequence.model.nodes.IterationNode;
 import os.nushi.booleansequence.model.nodes.Node;
+import os.nushi.booleansequence.model.nodes.SubSequenceNode;
 
 public class CoreMatcher implements Matcher{
 	
 	private BooleanSequence reSequence;
-
+	private boolean subsequence;
+	
 	public CoreMatcher() {
 	}
 	
 	public CoreMatcher(BooleanSequence reSequence) {
 		this.reSequence = reSequence;
+		reset();
+	}
+	
+	public CoreMatcher(BooleanSequence reSequence, boolean subsequence) {
+		this.reSequence = reSequence;
+		this.subsequence = subsequence;
 		reset();
 	}
 	
@@ -60,32 +67,43 @@ public class CoreMatcher implements Matcher{
 	
 	@Override
 	public ExpressionIdentifier match(char... ch){
-		if(ch.length < reSequence.minPathLength || (!this.reSequence.hasVariableLength && ch.length > reSequence.maxPathLength) ) return BooleanIdentifier.FAILED;
-		Counter index = new Counter();
+		return match(new Counter(), ch);
+	}
+	
+	@Override
+	public ExpressionIdentifier match(Counter index, char[] ch){
+		if(!subsequence && (ch.length < reSequence.minPathLength || (!this.reSequence.hasVariableLength && ch.length > reSequence.maxPathLength) )) 
+			return FAILED;
 		if(this.reSequence.capture) reset();
 		Node node = this.reSequence.startNode;
-		for (; index.counter < ch.length; index.counter++ ) {
+		for (; index.counter < ch.length; ) {
+			if(node.next.isEmpty() && !node.isEndNode) return PASSED; 
 			Node matchingNode = match(ch,index,node);
 			if(matchingNode!=null)
 				node = matchingNode;
 			else
-				return BooleanIdentifier.FAILED;
+				return FAILED;
 		}
 		if(node.isEndNode) return node.resultType;
-		return BooleanIdentifier.FAILED;
+		return FAILED;
 	}
 	
 	private Node match(char[] ch,Counter index , Node nd) {
 		for (Node node : nd.next) {
-			if(node.match(ch,index)) return node.getNode();
-		}
-		/*if(nd instanceof IterationNode ){
-			return nd.getNode();
-		}else{
-			for (Node node : nd.next) {
-				if(node.match(ch,index)) return node.getNode();
+			if(node instanceof SubSequenceNode){
+				CoreMatcher coreMatcher = new CoreMatcher(((SubSequenceNode)node).sequence, true);
+				if(coreMatcher.match(index,ch) == PASSED){
+					return node;
+				}
+				continue;
 			}
-		}*/
+			if(node.match(ch,index)) {
+				index.counter++;
+				return node.getNode();
+			}
+		}
+		index.counter++;
 		return null;
 	}
+	
 }

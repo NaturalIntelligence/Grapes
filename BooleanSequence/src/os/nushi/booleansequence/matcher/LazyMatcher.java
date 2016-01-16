@@ -27,12 +27,15 @@ SOFTWARE.
  */
 package os.nushi.booleansequence.matcher;
 
-import os.nushi.booleansequence.BooleanIdentifier;
+import static os.nushi.booleansequence.BooleanIdentifier.FAILED;
+import static os.nushi.booleansequence.BooleanIdentifier.MATCHED;
+
 import os.nushi.booleansequence.BooleanSequence;
 import os.nushi.booleansequence.ExpressionIdentifier;
 import os.nushi.booleansequence.ds.primitive.CharArrList;
 import os.nushi.booleansequence.model.Counter;
 import os.nushi.booleansequence.model.nodes.Node;
+import os.nushi.booleansequence.model.nodes.SubSequenceNode;
 
 public class LazyMatcher implements Matcher{
 
@@ -51,23 +54,6 @@ public class LazyMatcher implements Matcher{
 		this.reSequence = reSequence;
 		state = this.reSequence.startNode;
 	}
-
-	Node state;
-	
-	@Override
-	public ExpressionIdentifier match(char... ch){
-		if(ch.length == 0) return BooleanIdentifier.FAILED;
-		Counter index = new Counter();
-		for (; index.counter < ch.length; index.counter++ ) {
-			Node matchingNode = match(ch,index,state);
-			if(matchingNode!=null)
-				state = matchingNode;
-			else
-				return BooleanIdentifier.FAILED;;
-		}
-		if(state.isEndNode) return state.resultType;
-		return BooleanIdentifier.MATCHED;
-	}
 	
 	public void reset(){
 		for (CharArrList sublist : this.reSequence.matchedSequenceList) {
@@ -76,10 +62,52 @@ public class LazyMatcher implements Matcher{
 		this.state = this.reSequence.startNode;
 	}
 	
+	Node state;
+	
+	@Override
+	public ExpressionIdentifier match(char... ch){
+		Counter index = new Counter();
+		return match(index,ch);
+	}
+	
+	@Override
+	public ExpressionIdentifier match(Counter index, char[] ch) {
+		if(ch.length == 0) return FAILED;
+		for (; index.counter < ch.length; index.counter++ ) {
+			Node matchingNode = match(ch,index,state);
+			if(matchingNode!=null)
+				state = matchingNode;
+			else
+				return FAILED;;
+		}
+		if(state.isEndNode) return state.resultType;
+		return MATCHED;
+	}
+
+	Counter subIndex = new Counter();
 	private Node match(char[] ch,Counter index , Node nd) {
-		for (Node node : nd.next) {
-			if(node.match(ch,index)) return node.getNode();
+		for(;subIndex.counter < nd.next.size(); subIndex.counter++){
+			Node node = nd.next.get(subIndex.counter);
+			if(node instanceof SubSequenceNode){
+				LazyMatcher lazyMatcher = getInstance(node);
+				ExpressionIdentifier match = lazyMatcher.match(index,ch);
+				if(match != FAILED){
+					return nd;
+				}
+				continue;
+			}
+			if(node.match(ch,index)) {
+				return node.getNode();
+			}
 		}
 		return null;
+	}
+	
+	LazyMatcher subMatcher;
+	private LazyMatcher getInstance(Node node){
+		if(subMatcher == null)
+			subMatcher =  new LazyMatcher(((SubSequenceNode)node).sequence);
+		
+		return subMatcher;
 	}
 }

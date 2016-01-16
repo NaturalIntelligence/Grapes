@@ -56,7 +56,7 @@ public class ProgressiveMatcher implements Matcher{
 	private Counter index;
 	
 	@Override
-	public ExpressionIdentifier match(char... ch){
+	public ExpressionIdentifier match(Counter index, char[] ch) {
 		if(ch.length == 0) return BooleanIdentifier.FAILED;
 		for (; index.counter < ch.length; index.counter++ ) {
 			Node matchingNode = match(ch,index,state);
@@ -73,6 +73,11 @@ public class ProgressiveMatcher implements Matcher{
 		return BooleanIdentifier.MATCHED;
 	}
 	
+	@Override
+	public ExpressionIdentifier match(char... ch){
+		return		match(index,ch);
+	}
+	
 	public void reset(){
 		for (CharArrList sublist : this.reSequence.matchedSequenceList) {
 			sublist.removeAll();
@@ -87,4 +92,6 @@ public class ProgressiveMatcher implements Matcher{
 		}
 		return null;
 	}
+
+
 }

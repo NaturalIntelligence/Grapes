@@ -6,7 +6,7 @@ import org.junit.Test;
 import os.nushi.booleansequence.matcher.CoreMatcher;
 import os.nushi.booleansequence.model.SequenceLength;
 
-public class SubSequenceTest {
+public class SubSequenceTest2 {
 
 	private void assertTrue(ExpressionIdentifier ei){
 		Assert.assertEquals(BooleanIdentifier.PASSED ,ei);
@@ -16,22 +16,7 @@ public class SubSequenceTest {
 		Assert.assertEquals(BooleanIdentifier.FAILED,ei);
 	}
 	
-	@Test
-	public void testBasic() {		
-		BooleanSequence seq = new BooleanSequence("a(b)c");
-		seq.compile();
-		System.out.println(BooleanSequenceUtil.toJson(seq));
-		seq.minimize();
-		System.out.println(BooleanSequenceUtil.toJson(seq));
-		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
-		Assert.assertEquals(depth.min,3);
-		Assert.assertEquals(depth.max,3);
-		CoreMatcher matcher = seq.getCoreMatcher();
-		matcher.setSequence(seq);
-		assertTrue(matcher.match("abc".toCharArray()));
-	}
-	
-	@Test
+	/*@Test
 	public void testGroupingWithOr() {
 		BooleanSequence seq = new BooleanSequence("ab(cd|ef)");
 		seq.compile();seq.minimize();
@@ -67,12 +52,11 @@ public class SubSequenceTest {
 	
 	@Test
 	public void testOptional() {		
-		
 		BooleanSequence seq = new BooleanSequence("(ab|cd)?ef");
 		seq.compile();seq.minimize();
 		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		matcher.setSequence(seq);
 		assertTrue(matcher.match("cdef".toCharArray()));
@@ -116,9 +100,7 @@ public class SubSequenceTest {
 	@Test
 	public void testBracket() {
 		BooleanSequence seq = new BooleanSequence("a([bc]|d)?e");
-		seq.compile();
-		System.out.println(BooleanSequenceUtil.toJson(seq));
-		seq.minimize();
+		seq.compile();seq.minimize();
 		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,3);
@@ -163,5 +145,5 @@ public class SubSequenceTest {
 		assertTrue(matcher.match("ab".toCharArray()));
 		assertTrue(matcher.match("abc".toCharArray()));
 		assertTrue(matcher.match("acd".toCharArray()));
-	}
+	}*/
 }

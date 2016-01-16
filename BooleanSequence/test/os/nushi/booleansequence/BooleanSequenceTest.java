@@ -1,5 +1,6 @@
 package os.nushi.booleansequence;
 
+import static org.junit.Assert.assertEquals;
 import static os.nushi.booleansequence.BooleanIdentifier.FAILED;
 import static os.nushi.booleansequence.BooleanIdentifier.MATCHED;
 import static os.nushi.booleansequence.BooleanIdentifier.PASSED;
@@ -52,6 +53,27 @@ public class BooleanSequenceTest {
 	}
 	
 	@Test
+	public void testOptimization() {
+		BooleanSequence seq = new BooleanSequence("bc|bcd|bcde");
+		seq.compile().minimize();
+		BooleanSequence seq2 = new BooleanSequence("bc(d|de)?");
+		seq2.compile().minimize();
+		BooleanSequence seq3 = new BooleanSequence("bc(de?)?");
+		seq3.compile().minimize();
+		String json = BooleanSequenceUtil.toJson(seq);
+		String json2 = BooleanSequenceUtil.toJson(seq2);
+		String json3 = BooleanSequenceUtil.toJson(seq3);
+		
+		System.out.println(json);
+		System.out.println(json2);
+		System.out.println(json3);
+		
+		assertEquals(json,json2);
+		assertEquals(json3,json2);
+		
+	}
+	
+	@Test
 	public void testMerge() {
 		BooleanSequence seq = new BooleanSequence("ab(cd|ef)?");
 		seq.compile();
@@ -85,7 +107,10 @@ public class BooleanSequenceTest {
 	@Test
 	public void testOptional() {
 		BooleanSequence seq = new BooleanSequence("ab?c");
-		seq.compile();seq.minimize();
+		seq.compile();
+		System.out.println(BooleanSequenceUtil.toJson(seq));
+		seq.minimize();
+		System.out.println(BooleanSequenceUtil.toJson(seq));
 		SequenceLength depth = BooleanSequenceUtil.calculateDepth(seq);
 		Assert.assertEquals(depth.min,2);
 		Assert.assertEquals(depth.max,3);

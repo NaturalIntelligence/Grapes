@@ -26,6 +26,7 @@ SOFTWARE.
 package os.nushi.booleansequence;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import os.nushi.booleansequence.model.SequenceLength;
@@ -91,7 +92,7 @@ public class BooleanSequenceUtil {
 		reSequenceL.updatePathLength();
 	}
 	
-	private static void mergeSequences(Set<Node> links) {
+	private static void mergeSequences(List<Node> links) {
 		Set<Node> toRemov = new HashSet<Node>();
 		for (Node nodeL : links) {
 			for (Node nodeR : links) {
@@ -119,7 +120,7 @@ public class BooleanSequenceUtil {
 		}
 	}
 	
-	public static void mergeDuplicateNodes(Set<Node> links) {
+	public static void mergeDuplicateNodes(List<Node> links) {
 		Set<Node> toRemov = new HashSet<Node>();
 		for (Node nodeL : links) {
 			for (Node nodeR : links) {

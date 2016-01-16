@@ -27,9 +27,12 @@ SOFTWARE.
  */
 package os.nushi.booleansequence.matcher;
 
+import os.nushi.booleansequence.BooleanSequence;
 import os.nushi.booleansequence.ExpressionIdentifier;
+import os.nushi.booleansequence.model.Counter;
 
 public interface Matcher {
 	ExpressionIdentifier match(char... ch);
-
+	ExpressionIdentifier match(Counter index, char[] ch);
+	void setSequence(BooleanSequence sequence);
 }
