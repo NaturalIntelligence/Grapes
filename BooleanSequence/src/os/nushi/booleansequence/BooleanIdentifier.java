@@ -25,6 +25,7 @@ SOFTWARE.
 
 package os.nushi.booleansequence;
 
+//this is my code
 public enum BooleanIdentifier implements ExpressionIdentifier{
 	PASSED, FAILED, MATCHED;
 }
