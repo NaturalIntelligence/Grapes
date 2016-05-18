@@ -7,6 +7,8 @@ Later on I realized that this is 3 times faster than java RE. So I decided to us
 
 Currently Boolean Sequences are 1.5-2 times faster than current Java RE.
 
+**Contribute** : You can contribute to this project by adding new features mentioned at the end of this README or by testing and figuring out bug if any, or by just writing more unit tests to cover more scenarios that I may have missed, or just to buy some time for me by donating. [![Donate to author](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KQJAX48SPUKNC)
+
 ##Description
 Boolean sequences are kind of Regular Expression to make string comparision faster.
 
@@ -123,3 +125,6 @@ My immediate plans to support
 * Laziness in case of dynamic selection
 * Making it thread safe
 * Supporting more RE symbols
+
+
+**If you are looking for a dedicated solution to maintain stubs for your project you can have a look on my another open source project [stubby-db](https://github.com/NaturalIntelligence/StubbyDB). It requires almost no cofiguration and no coding.**
