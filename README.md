@@ -12,7 +12,7 @@ Currently Boolean Sequences are 1.5-2 times faster than current Java RE.
 ##Description
 Boolean sequences are kind of Regular Expression to make string comparision faster.
 
-Remember that boolean sequences ARE NOT regular expressions. They should not be used to extract some matching patterns from a long text (However who is gonna stop you by doing this). The main aim of BS(Boolean Sequence) is to comare strings.
+Remember that boolean sequences ARE NOT regular expressions. They should not be used to extract some matching patterns from a long text (However who is gonna stop you by doing this). The main aim of BS(Boolean Sequence) is to compare strings.
 
 Let's understand them with some examples;
 
@@ -43,7 +43,7 @@ Let's understand them with some examples;
 Currently 3 types of matcher are supported.
 
 1. **Core Matcher** (as explained above)
-2. **Progressive Matcher** : You need not to pass complete string for comparisoin in one go. It is good in case of streams.
+2. **Progressive Matcher** : You need not to pass complete string for comparison in one go. It is good in case of streams.
   
   ```java
 	BooleanSequence seq = new BooleanSequence("a([bc])d(mn|o)\\1a\\2");
@@ -76,7 +76,7 @@ These are the 3 matchers I intially created. But you can create your own matcher
 ##Features
 In addition of this; There are many other features;
 
-* **JSON view** : You can convert a BS to json. I have created a temorary visualization tool to understande how a sequence is evaluated.
+* **JSON view** : You can convert a BS to json. I have created a temporary visualization tool to understand how a sequence is evaluated.
   
   ```java
 	RESequenceUtil.toJson(reSeq));
@@ -99,7 +99,7 @@ In addition of this; There are many other features;
   
 * **Custom return type** : Instead of just returning whether your string is matching to a sequence or not, you can also return custom type. It is basically helpful when you merge multiple type of expressions. You can refer above example for the same. By default it returns : PASSED, MATCHED, FAILED.
 	
-* **Optimized expressions** : Whether you write "bc|bcd|bcde" , "bc(d|de)?", or "bc(de?)?", Bollean Sequence Parser parses the same sequence. Hence the performance of evaluating all mentioned 3 expressions is same.
+* **Optimized expressions** : Whether you write "bc|bcd|bcde" , "bc(d|de)?", or "bc(de?)?", Boolean Sequence Parser parses the same sequence. Hence the performance of evaluating all mentioned 3 expressions is same.
 
 and more ...
 
