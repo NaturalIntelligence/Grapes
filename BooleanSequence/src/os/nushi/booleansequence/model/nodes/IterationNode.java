@@ -21,7 +21,7 @@ public class IterationNode extends Node {
 	@Override
 	public boolean match(char[] ch, Counter index) {
 		if(CharUtil.isRange(ch[index.counter], min, max)){
-			super.capture(ch[index.counter]);
+			//super.capture(ch[index.counter]);
 			return true;
 		}
 		return false;
