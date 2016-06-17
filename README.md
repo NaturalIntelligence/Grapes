@@ -7,7 +7,7 @@ Later on I realized that this is 3 times faster than java RE. So I decided to us
 
 Currently Boolean Sequences are 1.5-2 times faster than current Java RE.
 
-**Contribute** : You can contribute to this project by adding new features mentioned at the end of this README or by testing and figuring out bug if any, or by just writing more unit tests to cover more scenarios that I may have missed, or just to buy some time for me by donating. [![Donate to author](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KQJAX48SPUKNC)
+**Contribute** : You can contribute to this project by adding new features mentioned at the end of this README or by testing and figuring out bug if any, or by just writing more unit tests to cover more scenarios that I may have missed, or just to buy some time for me by donating. [![Donate to author](https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_92x26.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KQJAX48SPUKNC)
 
 ##Description
 Boolean sequences are kind of Regular Expression to make string comparision faster.
