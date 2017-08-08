@@ -68,7 +68,7 @@ public class ProgressiveMatcherForCharIntMap {
 	}
 	
 	public void reset(){
-		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchedSequenceList) {
+		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchingGroups) {
 			sublist.removeAll();
 		}
 		this.state = this.reSequence.startNode;

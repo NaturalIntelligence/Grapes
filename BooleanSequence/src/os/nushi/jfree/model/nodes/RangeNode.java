@@ -1,5 +1,7 @@
 package os.nushi.jfree.model.nodes;
 
+import os.nushi.jfree.ds.primitive.CharArrList;
+
 public class RangeNode extends Node {
 
 	private char start;
@@ -9,8 +11,8 @@ public class RangeNode extends Node {
 		super('@');
 	}
 
-	public RangeNode(char left,char right) {
-		super('@');
+	public RangeNode(char left,char right,CharArrList ref) {
+		super('@',ref);
 		this.start = left;
 		this.end = right;
 	}

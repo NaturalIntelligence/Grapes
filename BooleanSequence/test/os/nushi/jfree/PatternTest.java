@@ -246,18 +246,18 @@ public class PatternTest {
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','o','b'));
 		Assert.assertEquals(PASSED,matcher.match('a','o'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','o','b'));
 		Assert.assertEquals(FAILED,matcher.match('a','m','n'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
 		Assert.assertEquals(PASSED,matcher.match('a','m','n'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		
 		matcher.reset();
@@ -265,7 +265,7 @@ public class PatternTest {
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
 		Assert.assertEquals(FAILED,matcher.match('a','m'));//Value of lazy node should not be broken
 		Assert.assertEquals(FAILED,matcher.match('n'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		seq = new Pattern("a(bc|d?e)?");
 		seq.compile();seq.minimize();
@@ -292,18 +292,18 @@ public class PatternTest {
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));
 		Assert.assertEquals(MATCHED,matcher.match("abdob".toCharArray()));
 		Assert.assertEquals(PASSED,matcher.match("abdobao".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));
 		Assert.assertEquals(MATCHED,matcher.match("abdob".toCharArray()));
 		Assert.assertEquals(FAILED,matcher.match("abdobamn".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));
 		Assert.assertEquals(MATCHED,matcher.match("abdmnb".toCharArray()));
 		Assert.assertEquals(PASSED,matcher.match("abdmnbamn".toCharArray()));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		
 		matcher.reset();
@@ -311,7 +311,7 @@ public class PatternTest {
 		Assert.assertEquals(MATCHED,matcher.match("abdmnb".toCharArray()));//MATCHED
 		Assert.assertEquals(FAILED,matcher.match("abdmnbam".toCharArray()));//FAILED
 		Assert.assertEquals(FAILED,matcher.match("abdmnbamn".toCharArray()));//FAILED Value of lazy node should not be broken
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		seq = new Pattern("a(bc|d?e)?");
 		seq.compile();seq.minimize();

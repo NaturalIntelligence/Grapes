@@ -29,7 +29,6 @@ package os.nushi.jfree.matcher;
 
 import os.nushi.jfree.BooleanIdentifier;
 import os.nushi.jfree.Pattern;
-import os.nushi.jfree.matcher.Matcher;
 import os.nushi.jfree.model.nodes.Node;
 
 public class CoreMatcher implements Matcher {
@@ -53,14 +52,14 @@ public class CoreMatcher implements Matcher {
 	 * Erase any captured data  to reuse the matcher for other string.
 	 */
 	public void reset(){
-		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchedSequenceList) {
+		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchingGroups) {
 			sublist.removeAll();
 		}
 	}
 	
 	@Override
 	public os.nushi.jfree.ExpressionIdentifier match(char... ch){
-		if(ch.length < reSequence.minPathLength || (!this.reSequence.hasVariableLength && ch.length > reSequence.maxPathLength) ) return BooleanIdentifier.FAILED;
+		if(ch.length < reSequence.minPathLength || ch.length > reSequence.maxPathLength) return BooleanIdentifier.FAILED;
 		os.nushi.jfree.model.Counter index = new os.nushi.jfree.model.Counter();
 		reset();
 		Node node = this.reSequence.startNode;

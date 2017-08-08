@@ -80,11 +80,10 @@ public class Pattern {
 	public Node startNode;
 	private Node currentNode;
 	public Node endNode;
-	private CharArrList matchedSequence;
-	public List<CharArrList> matchedSequenceList = new ArrayList<CharArrList>();
+	private CharArrList matchingCharSequence;
+	public List<CharArrList> matchingGroups = new ArrayList<CharArrList>();
 	private boolean shouldCaptureSubSequence;
 	private boolean isItSubSequence;
-	public boolean hasVariableLength;
 	Integer index;
 
 	public Pattern compile(){
@@ -94,12 +93,12 @@ public class Pattern {
 		for (index=0; index< re.length; index++) {
 
 			if(re[index] == '('){
-				CharArrList matchedSequence = new CharArrList();
-				matchedSequenceList.add(matchedSequence);//It'll store the result of captured sequence
+				CharArrList matchingCharSequence = new CharArrList();
+				matchingGroups.add(matchingCharSequence);//It'll store the result of captured sequence
 
 				subsequence = getMeASubSequence();
 				subsequence.shouldCaptureSubSequence = true;
-				subsequence.matchedSequence = matchedSequence;
+				subsequence.matchingCharSequence = matchingCharSequence;
 				subsequence.compile();
 
 				Util.mergeNodes(currentNode, subsequence.startNode);
@@ -112,11 +111,12 @@ public class Pattern {
 				//Start new sequence
 				currentNode = this.startNode;
 			}else if(re[index] == '['){
-				lastNode = linkNextNode(generateNodesForBracketSequence());
+				Set<Node> nodes = generateNodesForBracketSequence(shouldCaptureSubSequence, matchingCharSequence);
+				lastNode = linkNextNode(nodes);
 			}else if(re[index] == '?'){
 				linkJointNode(lastNode);
 			}else if(re[index] == '.'){
-				lastNode = linkNextNode(getAnyNode());
+				lastNode = linkNextNode(NodeFactory.getAnyNode(shouldCaptureSubSequence,matchingCharSequence));
 			}/*else if(re[index] == '+'){//1 or more
 				//convert end node of last sequence to iteration node
 
@@ -161,12 +161,12 @@ public class Pattern {
 				char c = re[++index];
 
 				if(CharUtil.isDigit(c)){ //if backreference is \\10 but total capture groups are 9 then 0 should be treated as normal char.
-					lastNode = linkNextNode(getBackReferenceNode(c));
+					lastNode = linkNextNode(NodeFactory.getBackReferenceNode(c,matchingGroups));
 				}else{
-					lastNode = linkNextNode(getNode(c));
+					lastNode = linkNextNode(NodeFactory.getNode(c,shouldCaptureSubSequence,matchingCharSequence));
 				}
 			}else{
-				lastNode = linkNextNode(getNode(re[index]));
+				lastNode = linkNextNode(NodeFactory.getNode(re[index],shouldCaptureSubSequence,matchingCharSequence));
 			}
 
 		}
@@ -174,7 +174,23 @@ public class Pattern {
 		return this;
 	}
 
-
+	/**
+	 * Bracket sequence can have either normal node or range node
+	 * bracket : [a-zA-Z0-9%] = 4 nodes
+	 * @return
+	 */
+	private Set<Node> generateNodesForBracketSequence(boolean shouldCaptureSubSequence,CharArrList matchingCharSequence) {
+		Set<Node> newNodes = new HashSet<Node>();
+		for(index++;re[index] != ']';index++){
+			if(re[index+1]=='-'){
+				newNodes.add(NodeFactory.getRangeNode(re[index],re[index+2],shouldCaptureSubSequence,matchingCharSequence));
+				index=index+2;
+				continue;
+			}
+			newNodes.add(NodeFactory.getNode(re[index],shouldCaptureSubSequence,matchingCharSequence));
+		}
+		return newNodes;
+	}
 
 	private void closeTheCurrentSequence() {
 		if(!this.isItSubSequence) {
@@ -210,23 +226,7 @@ public class Pattern {
 		return subsequence;
 	}
 
-	/**
-	 * Bracket sequence can have either normal node or range node
-	 * bracket : [a-zA-Z0-9%] = 4 nodes
-	 * @return
-	 */
-	private Set<Node> generateNodesForBracketSequence() {
-		Set<Node> newNodes = new HashSet<Node>();
-		for(index++;re[index] != ']';index++){
-			if(re[index+1]=='-'){
-				newNodes.add(getRangeNode(re[index],re[index+2]));
-				index=index+2;
-				continue;
-			}
-			newNodes.add(getNode(re[index]));
-		}
-		return newNodes;
-	}
+
 
 	/**
 	 * lastNode -> current => lastNode ->current; lastNode->joint; current->joint
@@ -287,14 +287,7 @@ public class Pattern {
 		return lastNode;
 	}
 
-	//TODO: fix when multidigit backreference or when total capture groups are less
-	private BackReferenceNode getBackReferenceNode(char c) {
-		hasVariableLength = true;
-		BackReferenceNode lazynode = new BackReferenceNode(c);
-		int position = Integer.parseInt(c+"");
-		lazynode.source(matchedSequenceList.get(position-1));//where to take the input from
-		return lazynode;
-	}
+
 
 	/*private IterationNode getIterationNode(Node node, int min, int max, Node startNode) {
 		IterationNode iterationNode = new IterationNode(node);
@@ -303,57 +296,7 @@ public class Pattern {
 		return iterationNode;
 	}*/
 
-	private Node getAnyNode() {
-		if(shouldCaptureSubSequence) {
-			Node node= new AnyNode(){
-				@Override
-				public boolean match(char[] ch, Counter index) {
-					if(super.match(ch, index)){
-						matchedSequence.add(ch[index.counter]);
-						return true;
-					}
-					return false;
-				}
-			};
-			return node;
-		}
-		return new AnyNode() ;
-	}
 
-	private Node getRangeNode(char from, char to) {
-		if(shouldCaptureSubSequence) {
-			RangeNode node = new RangeNode(from,to){
-				@Override
-				public boolean match(char[] ch, Counter index) {
-					if(super.match(ch, index)){
-						matchedSequence.add(ch[index.counter]);
-						return true;
-					}
-					return false;
-				}
-			};
-			return node;
-		}
-		return new RangeNode(from,to);
-	}
-
-	private Node getNode(char ch){
-		if(shouldCaptureSubSequence) {
-			NormalNode node = new NormalNode(ch){
-				@Override
-				public boolean match(char[] ch, Counter index) {
-					if(super.match(ch, index)){
-						matchedSequence.add(ch[index.counter]);
-						return true;
-					}
-					return false;
-				}
-			};
-
-			return node;
-		}
-		return new NormalNode(ch);
-	}
 	/**
 	 * Removes blank nodes
 	 */

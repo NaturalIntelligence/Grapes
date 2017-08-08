@@ -30,9 +30,9 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abcd".toCharArray()));
-		Assert.assertEquals(seq.matchedSequenceList.size(),0);
+		Assert.assertEquals(seq.matchingGroups.size(),0);
 		assertFalse(matcher.match("acd".toCharArray()));
-		Assert.assertEquals(seq.matchedSequenceList.size(),0);
+		Assert.assertEquals(seq.matchingGroups.size(),0);
 	}
 	
 	@Test
@@ -44,8 +44,8 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abcd".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(seq.matchedSequenceList.get(0).size(),2);
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(seq.matchingGroups.get(0).size(),2);
 		
 		assertFalse(matcher.match("acd".toCharArray()));
 	}
@@ -59,12 +59,12 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,4);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abdb".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
 		
 		assertTrue(matcher.match("acdc".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
 		
 		assertFalse(matcher.match("acdb".toCharArray()));
 		assertFalse(matcher.match("abdc".toCharArray()));
@@ -81,11 +81,11 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,3);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abd".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
 		assertTrue(matcher.match("acd".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
 	}
 	
 	@Test
@@ -97,11 +97,11 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,3);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("amd".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
 		assertTrue(matcher.match("axd".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
 	}
 	
 	@Test
@@ -113,8 +113,8 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("ambad".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(3,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(3,seq.matchingGroups.get(0).size());
 		assertFalse(matcher.match("ambd".toCharArray()));
 	}
 	
@@ -127,12 +127,12 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("ambad".toCharArray()));
-		Assert.assertEquals(1,seq.matchedSequenceList.size());
-		Assert.assertEquals(3,seq.matchedSequenceList.get(0).size());
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(3,seq.matchingGroups.get(0).size());
 		//TODO : Bug
 		//assertTrue(matcher.match("ambd".toCharArray()));
-		//Assert.assertEquals(1,seq.matchedSequenceList.size());
-		//Assert.assertEquals(2,seq.matchedSequenceList.get(0).size());
+		//Assert.assertEquals(1,seq.matchingGroups.size());
+		//Assert.assertEquals(2,seq.matchingGroups.get(0).size());
 		
 		
 	}
@@ -147,14 +147,14 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(depth.max,5);
 		CoreMatcher matcher = seq.getCoreMatcher();
 		assertTrue(matcher.match("abdmn".toCharArray()));
-		Assert.assertEquals(2,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
-		Assert.assertEquals(2,seq.matchedSequenceList.get(1).size());
+		Assert.assertEquals(2,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
+		Assert.assertEquals(2,seq.matchingGroups.get(1).size());
 		assertTrue(matcher.match("abd".toCharArray()));
 		assertTrue(matcher.match("acd".toCharArray()));
-		Assert.assertEquals(2,seq.matchedSequenceList.size());
-		Assert.assertEquals(1,seq.matchedSequenceList.get(0).size());
-		Assert.assertEquals(0,seq.matchedSequenceList.get(1).size());
+		Assert.assertEquals(2,seq.matchingGroups.size());
+		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
+		Assert.assertEquals(0,seq.matchingGroups.get(1).size());
 		assertTrue(matcher.match("acdmn".toCharArray()));
 		
 	}
@@ -173,18 +173,18 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','o','b'));
 		Assert.assertEquals(PASSED,matcher.match('a','o'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','o','b'));
 		Assert.assertEquals(FAILED,matcher.match('a','m','n'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
 		Assert.assertEquals(PASSED,matcher.match('a','m','n'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 		
 		matcher.reset();
@@ -192,7 +192,7 @@ public class PatternTestCaptureNodes {
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
 		Assert.assertEquals(FAILED,matcher.match('a','m'));//Value of lazy node should not be broken
 		Assert.assertEquals(FAILED,matcher.match('n'));
-		System.out.println(seq.matchedSequenceList);
+		System.out.println(seq.matchingGroups);
 		
 	}
 	

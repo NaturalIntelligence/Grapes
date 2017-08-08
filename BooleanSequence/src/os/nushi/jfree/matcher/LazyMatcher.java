@@ -69,7 +69,7 @@ public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
 	}
 	
 	public void reset(){
-		for (CharArrList sublist : this.reSequence.matchedSequenceList) {
+		for (CharArrList sublist : this.reSequence.matchingGroups) {
 			sublist.removeAll();
 		}
 		this.state = this.reSequence.startNode;

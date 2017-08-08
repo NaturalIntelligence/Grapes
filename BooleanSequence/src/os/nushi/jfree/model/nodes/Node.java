@@ -3,10 +3,12 @@ package os.nushi.jfree.model.nodes;
 import java.util.HashSet;
 import java.util.Set;
 
+import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
 
 public abstract class  Node {
 	public char value;
+	public CharArrList refForMatchingCharSeq;
 	public Set<Node> next;
 	public Set<Node> last;
 	public boolean isEndNode;
@@ -16,12 +18,26 @@ public abstract class  Node {
 		this.next = new HashSet<Node>();
 		this.last = new HashSet<Node>();
 	}
-	
+
+	public Node(CharArrList ref) {
+		refForMatchingCharSeq = ref;
+		this.next = new HashSet<Node>();
+		this.last = new HashSet<Node>();
+	}
+
 	public Node(char c) {
 		this.value = c;
 		this.next = new HashSet<Node>();
 		this.last = new HashSet<Node>();
 	}
+
+	public Node(char c,CharArrList ref) {
+		this.value = c;
+		refForMatchingCharSeq = ref;
+		this.next = new HashSet<Node>();
+		this.last = new HashSet<Node>();
+	}
+
 	
 	@Override
 	public String toString() {
