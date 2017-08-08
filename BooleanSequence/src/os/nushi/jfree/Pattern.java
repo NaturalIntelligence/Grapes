@@ -80,7 +80,6 @@ public class Pattern {
 	public Node startNode;
 	private Node currentNode;
 	public Node endNode;
-	public boolean capture;
 	private CharArrList matchedSequence;
 	public List<CharArrList> matchedSequenceList = new ArrayList<CharArrList>();
 	private boolean shouldCaptureSubSequence;
@@ -99,6 +98,7 @@ public class Pattern {
 				matchedSequenceList.add(matchedSequence);//It'll store the result of captured sequence
 
 				subsequence = getMeASubSequence();
+				subsequence.shouldCaptureSubSequence = true;
 				subsequence.matchedSequence = matchedSequence;
 				subsequence.compile();
 
@@ -207,7 +207,6 @@ public class Pattern {
 
 		subsequence = new Pattern(CharArrayUtil.subArray(re, startIndex,index-1));
 		subsequence.isItSubSequence = true;
-		subsequence.shouldCaptureSubSequence = this.capture;
 		return subsequence;
 	}
 

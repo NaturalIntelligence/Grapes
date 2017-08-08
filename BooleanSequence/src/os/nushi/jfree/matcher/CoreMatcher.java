@@ -49,6 +49,9 @@ public class CoreMatcher implements Matcher {
 		reset();
 	}
 
+	/**
+	 * Erase any captured data  to reuse the matcher for other string.
+	 */
 	public void reset(){
 		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchedSequenceList) {
 			sublist.removeAll();
@@ -59,7 +62,7 @@ public class CoreMatcher implements Matcher {
 	public os.nushi.jfree.ExpressionIdentifier match(char... ch){
 		if(ch.length < reSequence.minPathLength || (!this.reSequence.hasVariableLength && ch.length > reSequence.maxPathLength) ) return BooleanIdentifier.FAILED;
 		os.nushi.jfree.model.Counter index = new os.nushi.jfree.model.Counter();
-		if(this.reSequence.capture) reset();
+		reset();
 		Node node = this.reSequence.startNode;
 		for (; index.counter < ch.length; index.counter++ ) {
 			Node matchingNode = match(ch,index,node);

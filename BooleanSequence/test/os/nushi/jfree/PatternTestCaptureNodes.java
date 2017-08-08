@@ -24,7 +24,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withNoSubSequenceToCapture() {
 		Pattern seq = new Pattern("abcd");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
@@ -39,7 +38,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withSubSequence(){
 		Pattern seq = new Pattern("a(bc)d");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
@@ -55,7 +53,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withSubSequenceAndCapturedMatch(){
 		Pattern seq = new Pattern("a([bc])d\\1");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
@@ -78,7 +75,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withBracket(){
 		Pattern seq = new Pattern("a([bc])d");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
@@ -95,7 +91,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withRange(){
 		Pattern seq = new Pattern("a([m-z])d");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
@@ -112,7 +107,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withAny(){
 		Pattern seq = new Pattern("a([m-z]b.)d");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,5);
@@ -127,7 +121,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void withOptional(){
 		Pattern seq = new Pattern("a([m-z]b.?)d");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
@@ -147,7 +140,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void testMultipleCapture() {
 		Pattern seq = new Pattern("a([bc])d(mn)?");
-		seq.capture = true;
 		seq.compile().minimize();
 		System.out.println(Util.toJson(seq));
 		SequenceLength depth = Util.calculateDepth(seq);
@@ -171,7 +163,6 @@ public class PatternTestCaptureNodes {
 	public void testCaptureAndLazyNodes() {
 		os.nushi.jfree.matcher.LazyMatcher matcher = new os.nushi.jfree.matcher.LazyMatcher();
 		Pattern seq = new Pattern("a([bc])d(mn|o)\\1a\\2");
-		seq.capture = true;
 		seq.compile().minimize();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,7);
@@ -209,7 +200,6 @@ public class PatternTestCaptureNodes {
 	@Test
 	public void testToJson() {
 		Pattern seq = new Pattern("a([bc])d(mn)?");
-		seq.capture = true;
 		seq.compile();seq.minimize();
 		System.out.println(Util.toJson(seq));
 	}

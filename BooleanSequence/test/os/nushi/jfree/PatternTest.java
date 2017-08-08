@@ -227,7 +227,6 @@ public class PatternTest {
 	@Test
 	public void testToJson() {
 		Pattern seq = new Pattern("a([bc])d(mn)?");
-		seq.capture = true;
 		seq.compile();seq.minimize();
 		System.out.println(Util.toJson(seq));
 	}
@@ -237,7 +236,6 @@ public class PatternTest {
 	public void testLazyMatch() {
 		os.nushi.jfree.matcher.LazyMatcher matcher = new os.nushi.jfree.matcher.LazyMatcher();
 		Pattern seq = new Pattern("a([bc])d(mn|o)\\1a\\2");
-		seq.capture = true;
 		seq.compile().minimize();
 		os.nushi.jfree.model.SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,7);
@@ -270,7 +268,6 @@ public class PatternTest {
 		System.out.println(seq.matchedSequenceList);
 		
 		seq = new Pattern("a(bc|d?e)?");
-		seq.capture = false;
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
 		depth = Util.calculateDepth(seq);
@@ -284,7 +281,6 @@ public class PatternTest {
 	@Test
 	public void testProgressiveMatch() {
 		Pattern seq = new Pattern("a([bc])d(mn|o)\\1a\\2");
-		seq.capture = true;
 		seq.compile();
 		seq.minimize();
 		os.nushi.jfree.model.SequenceLength depth = Util.calculateDepth(seq);
@@ -318,7 +314,6 @@ public class PatternTest {
 		System.out.println(seq.matchedSequenceList);
 		
 		seq = new Pattern("a(bc|d?e)?");
-		seq.capture = false;
 		seq.compile();seq.minimize();
 		matcher.setSequence(seq);
 		System.out.println(Util.toJson(seq));
@@ -371,7 +366,6 @@ public class PatternTest {
 	@Test
 	public void tempTest() {
 		Pattern seq = new Pattern("\\.d(ab?|c)e?[x-z].\\1");
-		seq.capture = true;
 		seq.compile().minimize();
 
 		System.out.println(Util.toJson(seq));
