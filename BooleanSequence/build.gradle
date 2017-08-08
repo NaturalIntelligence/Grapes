@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-archivesBaseName = 'nushi-bs'
+archivesBaseName = 'nushi-jfree'
 version = '1.2.2' 
 
 repositories {
@@ -13,8 +13,8 @@ dependencies{
 }
 
 sourceSets { 
-	main { java.srcDir "src/os/nushi/booleansequence/" }
-	test { java.srcDir "test/os/nushi/booleansequence/" }
+	main { java.srcDir "src/os/nushi/jfree/" }
+	test { java.srcDir "test/os/nushi/jfree/" }
 
  }
  
