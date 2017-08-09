@@ -25,6 +25,6 @@ SOFTWARE.
 
 package os.nushi.jfree;
 
-public enum BooleanIdentifier implements ExpressionIdentifier{
+public enum Result implements ResultIdentifier {
 	PASSED, FAILED, MATCHED;
 }

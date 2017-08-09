@@ -1,5 +1,6 @@
 package os.nushi.jfree.model.nodes;
 
+import os.nushi.jfree.Result;
 import os.nushi.jfree.ds.primitive.CharArrList;
 
 public class AnyNode extends Node {
@@ -13,8 +14,8 @@ public class AnyNode extends Node {
 }
 
 	@Override
-	public boolean match(char[] ch, os.nushi.jfree.model.Counter index) {
-		return true;
+	public Result match(char[] ch, os.nushi.jfree.model.Counter index) {
+		return Result.PASSED;
 	}
 	
 	@Override

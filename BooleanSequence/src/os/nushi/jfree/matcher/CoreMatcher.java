@@ -27,23 +27,26 @@ SOFTWARE.
  */
 package os.nushi.jfree.matcher;
 
-import os.nushi.jfree.BooleanIdentifier;
-import os.nushi.jfree.Pattern;
+import os.nushi.jfree.ResultIdentifier;
+import os.nushi.jfree.Result;
+import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.nodes.Node;
+import os.nushi.jfree.Sequence;
+import os.nushi.jfree.model.Counter;
 
 public class CoreMatcher implements Matcher {
 	
-	private Pattern reSequence;
+	private Sequence reSequence;
 
 	public CoreMatcher() {
 	}
 	
-	public CoreMatcher(Pattern reSequence) {
+	public CoreMatcher(Sequence reSequence) {
 		this.reSequence = reSequence;
 		reset();
 	}
 	
-	public void setSequence(Pattern reSequence){
+	public void setSequence(Sequence reSequence){
 		this.reSequence = reSequence;
 		reset();
 	}
@@ -52,31 +55,35 @@ public class CoreMatcher implements Matcher {
 	 * Erase any captured data  to reuse the matcher for other string.
 	 */
 	public void reset(){
-		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchingGroups) {
+		for (CharArrList sublist : this.reSequence.matchingGroups) {
 			sublist.removeAll();
 		}
 	}
 	
 	@Override
-	public os.nushi.jfree.ExpressionIdentifier match(char... ch){
-		if(ch.length < reSequence.minPathLength || ch.length > reSequence.maxPathLength) return BooleanIdentifier.FAILED;
-		os.nushi.jfree.model.Counter index = new os.nushi.jfree.model.Counter();
+	public ResultIdentifier match(char... ch){
+		if(ch.length < reSequence.minPathLength || ch.length > reSequence.maxPathLength) return Result.FAILED;
+		Counter index = new Counter();
 		reset();
 		Node node = this.reSequence.startNode;
-		for (; index.counter < ch.length; index.counter++ ) {
+		for (; index.counter < ch.length ; index.counter++ ) {
 			Node matchingNode = match(ch,index,node);
 			if(matchingNode!=null)
 				node = matchingNode;
 			else
-				return BooleanIdentifier.FAILED;
+				return Result.FAILED;
 		}
 		if(node.isEndNode) return node.resultType;
-		return BooleanIdentifier.FAILED;
+		return Result.FAILED;
 	}
 	
-	private Node match(char[] ch, os.nushi.jfree.model.Counter index , Node nd) {
+	private Node match(char[] ch, Counter index , Node nd) {
 		for (Node node : nd.next) {
-			if(node.match(ch,index)) return node.getNode();
+			Result result = node.match(ch,index);
+			if( result == Result.MATCHED)
+				return nd;
+			else if(result == Result.PASSED)
+				return node.getNode();
 		}
 		/*if(nd instanceof IterationNode ){
 			return nd.getNode();

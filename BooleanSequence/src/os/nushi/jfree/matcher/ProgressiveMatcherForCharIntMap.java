@@ -27,22 +27,24 @@ SOFTWARE.
  */
 package os.nushi.jfree.matcher;
 
-import os.nushi.jfree.Pattern;
+import os.nushi.jfree.Result;
+import os.nushi.jfree.ResultIdentifier;
+import os.nushi.jfree.Sequence;
 
 public class ProgressiveMatcherForCharIntMap {
 
-	private Pattern reSequence;
+	private Sequence reSequence;
 
 	public ProgressiveMatcherForCharIntMap() {
 		
 	}
 	
-	public ProgressiveMatcherForCharIntMap(Pattern reSequence) {
+	public ProgressiveMatcherForCharIntMap(Sequence reSequence) {
 		this.reSequence = reSequence;
 		reset();
 	}
 	
-	public void setSequence(Pattern reSequence){
+	public void setSequence(Sequence reSequence){
 		this.reSequence = reSequence;
 		reset();
 	}
@@ -50,21 +52,21 @@ public class ProgressiveMatcherForCharIntMap {
 	private os.nushi.jfree.model.nodes.Node state;
 	private os.nushi.jfree.model.Counter index;
 	
-	public os.nushi.jfree.ExpressionIdentifier match(os.nushi.jfree.ds.primitive.CharIntMultiMap map){
-		if(map.size() == 0) return os.nushi.jfree.BooleanIdentifier.FAILED;
+	public ResultIdentifier match(os.nushi.jfree.ds.primitive.CharIntMultiMap map){
+		if(map.size() == 0) return Result.FAILED;
 		for (; index.counter < map.size(); index.counter++ ) {
 			os.nushi.jfree.model.nodes.Node matchingNode = match(map.getKeys(),index,state);
 			if(matchingNode!=null)
 				state = matchingNode;
 			else{
 				index = new os.nushi.jfree.model.Counter();
-				return os.nushi.jfree.BooleanIdentifier.FAILED;
+				return Result.FAILED;
 			}
 		}
 		if(state.isEndNode){
 			return state.resultType;
 		}
-		return os.nushi.jfree.BooleanIdentifier.MATCHED;
+		return Result.MATCHED;
 	}
 	
 	public void reset(){
@@ -77,7 +79,7 @@ public class ProgressiveMatcherForCharIntMap {
 	
 	private os.nushi.jfree.model.nodes.Node match(char[] ch, os.nushi.jfree.model.Counter index , os.nushi.jfree.model.nodes.Node nd) {
 		for (os.nushi.jfree.model.nodes.Node node : nd.next) {
-			if(node.match(ch,index)) return node.getNode();
+			if(node.match(ch,index) == Result.PASSED) return node.getNode();
 		}
 		return null;
 	}

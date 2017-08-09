@@ -11,18 +11,15 @@ public class PatternUtilTest {
 
 	@Test
 	public void testGetEndNodes() {
-		Pattern seq = new Pattern("ab|cd");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("ab|cd").compile();
 		Set<Node> endNodes = Util.getEndNodes(seq);
 		Assert.assertEquals(2,endNodes.size());
 		
-		seq = new Pattern("(ab|c?d)?ef");
-		seq.compile().minimize();
+		seq = new Pattern("(ab|c?d)?ef").compile();
 		endNodes = Util.getEndNodes(seq);
 		Assert.assertEquals(1,endNodes.size());
 		
-		seq = new Pattern("(ab|c?d)?");
-		seq.compile().minimize();
+		seq = new Pattern("(ab|c?d)?").compile();
 		endNodes = Util.getEndNodes(seq);
 		Assert.assertEquals(3,endNodes.size());
 	}

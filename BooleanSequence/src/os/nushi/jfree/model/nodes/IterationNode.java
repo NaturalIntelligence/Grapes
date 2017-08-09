@@ -1,5 +1,6 @@
 package os.nushi.jfree.model.nodes;
 
+import os.nushi.jfree.Result;
 import os.nushi.jfree.model.Counter;
 import os.nushi.jfree.util.CharUtil;
 
@@ -19,12 +20,12 @@ public class IterationNode extends os.nushi.jfree.model.nodes.Node {
 	}
 
 	@Override
-	public boolean match(char[] ch, Counter index) {
+	public Result match(char[] ch, Counter index) {
 		if(CharUtil.isRange(ch[index.counter], min, max)){
 			//super.capture(ch[index.counter]);
-			return true;
+			return Result.PASSED;
 		}
-		return false;
+		return Result.FAILED;
 	}
 	
 	@Override

@@ -1,8 +1,10 @@
 package os.nushi.jfree.model.nodes;
 
+import os.nushi.jfree.Result;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
-import os.nushi.jfree.model.nodes.Node;
+
+import java.util.List;
 
 /**
  * \\n
@@ -14,28 +16,49 @@ import os.nushi.jfree.model.nodes.Node;
  */
 public class BackReferenceNode extends Node {
 
-	private CharArrList list;
+	private List<CharArrList> refForMatchingGroups;
 
-	public BackReferenceNode(char c) {
+	public BackReferenceNode(char c, List<CharArrList> ref) {
 		super(c);
+		refForMatchingGroups = ref;
 	}
 
-	public void source(CharArrList list){
-		this.list = list;
-	}
-	
+	int cnt=0;
+	CharArrList groupVal;
+
 	@Override
-	public boolean match(char[] ch, Counter index) {
-		try{
-			if(list.size() == 1) return list.get(0) == ch[index.counter];
-			for(int i=0;i<list.size();i++){
-				if(list.get(i) != ch[index.counter++]) return false;
+	public Result match(char[] ch, Counter index) {
+		if(cnt==0){
+			int groupNum = Integer.parseInt(super.value + "");
+			if(refForMatchingGroups.size() >= groupNum) {
+				groupVal = refForMatchingGroups.get(groupNum - 1);
+				if(groupVal.get(cnt) == ch[index.counter]){
+					cnt++;
+					if(cnt == groupVal.size()) {
+						reset();
+						return Result.PASSED;
+					}
+					else
+						return Result.MATCHED;
+				}
 			}
-			index.counter--;
-			return true;				
-		}catch(Exception e){}
-		
-		return false;
+		}else{
+			if(groupVal.get(cnt) == ch[index.counter]){
+				cnt++;
+				if(cnt == groupVal.size()) {
+					reset();
+					return Result.PASSED;
+				}
+				else
+					return Result.MATCHED;
+			}
+		}
+		reset();
+		return Result.FAILED;
 	}
 
+	public void reset(){
+		cnt=0;
+		groupVal=null;
+	}
 }

@@ -1,18 +1,21 @@
 package os.nushi.jfree.model.nodes;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import os.nushi.jfree.Result;
+import os.nushi.jfree.ResultIdentifier;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class  Node {
 	public char value;
 	public CharArrList refForMatchingCharSeq;
+
 	public Set<Node> next;
 	public Set<Node> last;
 	public boolean isEndNode;
-	public os.nushi.jfree.ExpressionIdentifier resultType;
+	public ResultIdentifier resultType;
 	
 	public Node() {
 		this.next = new HashSet<Node>();
@@ -50,7 +53,7 @@ public abstract class  Node {
 	 * @param index
 	 * @return
 	 */
-	abstract public boolean match(char[] ch, Counter index);
+	abstract public Result match(char[] ch, Counter index);
 
 	/**
 	 * when both objects are instance of same class and their values match.

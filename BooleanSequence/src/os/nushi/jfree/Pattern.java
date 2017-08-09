@@ -24,22 +24,19 @@ SOFTWARE.
  */
 package os.nushi.jfree;
 
+import os.nushi.jfree.ds.primitive.CharArrList;
+import os.nushi.jfree.ds.primitive.CharStack;
+import os.nushi.jfree.model.nodes.Node;
+import os.nushi.jfree.model.nodes.NormalNode;
+import os.nushi.jfree.util.CharArrayUtil;
+import os.nushi.jfree.util.CharUtil;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import os.nushi.jfree.ds.primitive.CharArrList;
-import os.nushi.jfree.ds.primitive.CharStack;
-import os.nushi.jfree.matcher.CoreMatcher;
-import os.nushi.jfree.matcher.ProgressiveMatcher;
-import os.nushi.jfree.model.Counter;
-import os.nushi.jfree.model.SequenceLength;
-import os.nushi.jfree.model.nodes.*;
-import os.nushi.jfree.util.CharArrayUtil;
-import os.nushi.jfree.util.CharUtil;
-
-import static os.nushi.jfree.BooleanIdentifier.PASSED;
+import static os.nushi.jfree.Result.PASSED;
 
 //TODO : possible improvements
 
@@ -55,123 +52,85 @@ import static os.nushi.jfree.BooleanIdentifier.PASSED;
 public class Pattern {
 
 	private char[] re;
-	private ExpressionIdentifier expressionIdentifier;
+	private ResultIdentifier resultIdentifier;
 
 	public Pattern(String str) {
 		this(str.toCharArray());
 	}
 
-	public Pattern(String str, ExpressionIdentifier expressionIdentifier) {
-		this(str.toCharArray(),expressionIdentifier);
+	public Pattern(String str, ResultIdentifier resultIdentifier) {
+		this(str.toCharArray(), resultIdentifier);
 	}
 
 	public Pattern(char[] re) {
 		this(re, PASSED);
 	}
 
-	public Pattern(char[] re, ExpressionIdentifier expressionIdentifier) {
+	public Pattern(char[] re, ResultIdentifier resultIdentifier) {
 		this.re = re;
-		this.expressionIdentifier = expressionIdentifier;
-		this.startNode = new NormalNode();
-		this.currentNode = this.startNode;
-		this.endNode = new NormalNode();
+		this.resultIdentifier = resultIdentifier;
 	}
 
-	public Node startNode;
-	private Node currentNode;
-	public Node endNode;
-	private CharArrList matchingCharSequence;
-	public List<CharArrList> matchingGroups = new ArrayList<CharArrList>();
-	private boolean shouldCaptureSubSequence;
-	private boolean isItSubSequence;
 	Integer index;
 
-	public Pattern compile(){
+	public Sequence compile(){
+		List<CharArrList> matchingGroups = new ArrayList<>();
+		Sequence sequence = compile(re,false,false, matchingGroups);
+		minimize(sequence);
+
+		return sequence;
+
+	}
+	Node currentNode,endNode;
+	//TODO: make wrapper compile and call comppile();minimize();
+	Sequence compile(char[] re,boolean isItSubSequence, boolean shouldBeCaptured,List<CharArrList> mG ){
 		Node lastNode = null;
-		Pattern subsequence = null;
+
+		endNode = new NormalNode();
 		index = 0;
+		Sequence sequence = new Sequence(mG,shouldBeCaptured);
+		currentNode = sequence.startNode;
+
 		for (index=0; index< re.length; index++) {
 
 			if(re[index] == '('){
-				CharArrList matchingCharSequence = new CharArrList();
-				matchingGroups.add(matchingCharSequence);//It'll store the result of captured sequence
+				char[] groupStr = extractGroupString();
+				Pattern subPattern = new Pattern(groupStr);
+				Sequence subSequence = subPattern.compile(groupStr,true,true,mG);
 
-				subsequence = getMeASubSequence();
-				subsequence.shouldCaptureSubSequence = true;
-				subsequence.matchingCharSequence = matchingCharSequence;
-				subsequence.compile();
+				Util.mergeNodes(currentNode, subSequence.startNode);
 
-				Util.mergeNodes(currentNode, subsequence.startNode);
-
-				//forward linking
+				//go forward
 				lastNode = currentNode;
-				currentNode = subsequence.endNode;
+				currentNode = subPattern.endNode;
 			}else if(re[index] == '|'){
-				closeTheCurrentSequence();
+				closeTheCurrentSequence(isItSubSequence);
 				//Start new sequence
-				currentNode = this.startNode;
+				currentNode = sequence.startNode;
 			}else if(re[index] == '['){
-				Set<Node> nodes = generateNodesForBracketSequence(shouldCaptureSubSequence, matchingCharSequence);
+				Set<Node> nodes = generateNodesForBracketSequence(shouldBeCaptured, sequence.matchingCharSequence);
 				lastNode = linkNextNode(nodes);
 			}else if(re[index] == '?'){
 				linkJointNode(lastNode);
 			}else if(re[index] == '.'){
-				lastNode = linkNextNode(NodeFactory.getAnyNode(shouldCaptureSubSequence,matchingCharSequence));
-			}/*else if(re[index] == '+'){//1 or more
-				//convert end node of last sequence to iteration node
-
-				if(currentNode.isJointNode()){
-					//Go one more step backward
-					Set<Node> lastNodes = new HashSet<Node>(currentNode.last);
-					currentNode.last.clear();
-					for (Node node : lastNodes) {
-						IterationNode iNode = getIterationNode(node,1,-1,node);
-						iNode.setStartingNode(iNode);
-						//update references
-						for (Node lastNode : node.last) {
-							lastNode.next.remove(node);
-							lastNode.next.add(iNode);
-						}
-						currentNode.last.add(iNode);
-					}
-				}else{
-					Node iNode = getIterationNode(currentNode,1,-1,currentNode);
-					//update references
-					for (Node lastNode : currentNode.last) {
-						lastNode.next.remove(currentNode);
-						lastNode.next.add(iNode);
-					}
-					currentNode = iNode;
-				}
-
-
-				hasVariableLength = true;
-				isItSubSequence = null;
-			}else if(re[i] == '{'){//TODO
-				int start = ++i;
-				//read until } is found
-				for(;re[i] != '}';i++){
-					if(!CharUtil.isDigit(re[i])){
-						System.out.println("Invalid Boolean Expression");
-					}
-				}
-
-				int num = Integer.parseInt(new String(CharArrayUtil.subArray(re, start, i-1)));
-			}*/else if(re[index] == '\\'){//add next char as plain Node
+				Node node = NodeFactory.getAnyNode(shouldBeCaptured,sequence.matchingCharSequence);
+				lastNode = linkNextNode(node);
+			}else if(re[index] == '\\'){
 				char c = re[++index];
 
-				if(CharUtil.isDigit(c)){ //if backreference is \\10 but total capture groups are 9 then 0 should be treated as normal char.
-					lastNode = linkNextNode(NodeFactory.getBackReferenceNode(c,matchingGroups));
+				if(CharUtil.isDigit(c)){
+					Node node = NodeFactory.getBackReferenceNode(c,mG);
+					lastNode = linkNextNode(node);
 				}else{
-					lastNode = linkNextNode(NodeFactory.getNode(c,shouldCaptureSubSequence,matchingCharSequence));
+					lastNode = linkNextNode(NodeFactory.getNode(c,shouldBeCaptured,sequence.matchingCharSequence));
 				}
 			}else{
-				lastNode = linkNextNode(NodeFactory.getNode(re[index],shouldCaptureSubSequence,matchingCharSequence));
+				lastNode = linkNextNode(NodeFactory.getNode(re[index],shouldBeCaptured,sequence.matchingCharSequence));
 			}
 
 		}
-		closeTheCurrentSequence();
-		return this;
+		closeTheCurrentSequence(isItSubSequence);
+		return sequence;
 	}
 
 	/**
@@ -179,35 +138,37 @@ public class Pattern {
 	 * bracket : [a-zA-Z0-9%] = 4 nodes
 	 * @return
 	 */
-	private Set<Node> generateNodesForBracketSequence(boolean shouldCaptureSubSequence,CharArrList matchingCharSequence) {
+	private Set<Node> generateNodesForBracketSequence(boolean shouldBeCaptured,CharArrList matchingCharSequence) {
 		Set<Node> newNodes = new HashSet<Node>();
 		for(index++;re[index] != ']';index++){
 			if(re[index+1]=='-'){
-				newNodes.add(NodeFactory.getRangeNode(re[index],re[index+2],shouldCaptureSubSequence,matchingCharSequence));
+				newNodes.add(NodeFactory.getRangeNode(re[index],re[index+2],shouldBeCaptured,matchingCharSequence));
 				index=index+2;
 				continue;
 			}
-			newNodes.add(NodeFactory.getNode(re[index],shouldCaptureSubSequence,matchingCharSequence));
+			newNodes.add(NodeFactory.getNode(re[index],shouldBeCaptured,matchingCharSequence));
 		}
 		return newNodes;
 	}
 
-	private void closeTheCurrentSequence() {
-		if(!this.isItSubSequence) {
+	private void closeTheCurrentSequence(boolean isItSubSequence) {
+		if(!isItSubSequence) {
 			markEndNode(currentNode);
 		}else{
-			currentNode.next.add(endNode);
-			endNode.last.add(currentNode);
+			link(currentNode,endNode);
 		}
 	}
 
 	private void markEndNode(Node parentNode) {
 		parentNode.isEndNode = true;
-		parentNode.resultType = expressionIdentifier;
+		parentNode.resultType = resultIdentifier;
 	}
 
-	private Pattern getMeASubSequence() {
-		Pattern subsequence;
+	/**
+	 * Fetch string/group between ()
+	 * @return
+	 */
+	private char[] extractGroupString() {
 		int startIndex = index+1;
 
 		CharStack stack = new CharStack();
@@ -221,9 +182,7 @@ public class Pattern {
 			index++;
 		}
 
-		subsequence = new Pattern(CharArrayUtil.subArray(re, startIndex,index-1));
-		subsequence.isItSubSequence = true;
-		return subsequence;
+		return CharArrayUtil.subArray(re, startIndex,index-1);
 	}
 
 
@@ -242,6 +201,12 @@ public class Pattern {
 		currentNode = jointNode;//go forward
 	}
 
+	/**
+	 * Set current.next = next
+	 * <br/>next.last=current
+	 * @param current
+	 * @param next
+	 */
 	private void link(Node current, Node next) {
 		current.next.add(next);
 		next.last.add(current);
@@ -300,13 +265,12 @@ public class Pattern {
 	/**
 	 * Removes blank nodes
 	 */
-	public Pattern minimize(){
-		Node parentNode = this.startNode;
+	public void minimize(Sequence sequence){
+		Node parentNode = sequence.startNode;
 		removeBlankNodes(parentNode);
 		Util.mergeAllDuplicateNodes(parentNode);
 		System.gc();
-		updatePathLength();
-		return this;
+		sequence.updatePathLength();
 	}
 
 	private void removeBlankNodes(Node parentNode) {
@@ -336,27 +300,12 @@ public class Pattern {
 		Util.mergeDuplicateNodes(parentNode.next);
 	}
 
-
-	public int minPathLength;
-	public int maxPathLength;
-	
-	public void updatePathLength(){
-		SequenceLength depth = Util.calculateDepth(this);
-		minPathLength = depth.min;
-		maxPathLength = depth.max;
-	}
-	
-	public Pattern merge(Pattern sequence){
-		Util.mergeSequences(this, sequence);
-		return this;
-	}
-	
-	public CoreMatcher getCoreMatcher(){
+	/*public CoreMatcher getCoreMatcher(){
 		return new CoreMatcher(this);
 	}
 	
 	public ProgressiveMatcher getProgressiveMatcher(){
 		return new ProgressiveMatcher(this);
-	}
+	}*/
 }
 

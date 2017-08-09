@@ -1,34 +1,32 @@
 package os.nushi.jfree;
 
-import static os.nushi.jfree.BooleanIdentifier.FAILED;
-import static os.nushi.jfree.BooleanIdentifier.MATCHED;
-import static os.nushi.jfree.BooleanIdentifier.PASSED;
-
 import org.junit.Assert;
 import org.junit.Test;
-
 import os.nushi.jfree.matcher.CoreMatcher;
+import os.nushi.jfree.matcher.LazyMatcher;
 import os.nushi.jfree.model.SequenceLength;
+
+import static os.nushi.jfree.Result.*;
 
 public class PatternTestCaptureNodes {
 	
-	private void assertTrue(ExpressionIdentifier ei){
-		Assert.assertEquals(os.nushi.jfree.BooleanIdentifier.PASSED ,ei);
+	private void assertTrue(ResultIdentifier ei){
+		Assert.assertEquals(Result.PASSED ,ei);
 	}
 	
-	private void assertFalse(ExpressionIdentifier ei){
-		Assert.assertEquals(os.nushi.jfree.BooleanIdentifier.FAILED,ei);
+	private void assertFalse(ResultIdentifier ei){
+		Assert.assertEquals(FAILED,ei);
 	}
 	
 	
 	@Test
 	public void withNoSubSequenceToCapture() {
-		Pattern seq = new Pattern("abcd");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("abcd").compile();
+		
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abcd".toCharArray()));
 		Assert.assertEquals(seq.matchingGroups.size(),0);
 		assertFalse(matcher.match("acd".toCharArray()));
@@ -37,12 +35,12 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void withSubSequence(){
-		Pattern seq = new Pattern("a(bc)d");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a(bc)d").compile();
+		
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abcd".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(seq.matchingGroups.get(0).size(),2);
@@ -52,12 +50,11 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void withSubSequenceAndCapturedMatch(){
-		Pattern seq = new Pattern("a([bc])d\\1");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a([bc])d\\1").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,4);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abdb".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
@@ -74,12 +71,11 @@ public class PatternTestCaptureNodes {
 
 	@Test
 	public void withBracket(){
-		Pattern seq = new Pattern("a([bc])d");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a([bc])d").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,3);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abd".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
@@ -90,12 +86,11 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void withRange(){
-		Pattern seq = new Pattern("a([m-z])d");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a([m-z])d").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,3);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("amd".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
@@ -106,12 +101,11 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void withAny(){
-		Pattern seq = new Pattern("a([m-z]b.)d");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a([m-z]b.)d").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,5);
 		Assert.assertEquals(depth.max,5);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ambad".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(3,seq.matchingGroups.get(0).size());
@@ -120,12 +114,11 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void withOptional(){
-		Pattern seq = new Pattern("a([m-z]b.?)d");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a([m-z]b.?)d").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,4);
 		Assert.assertEquals(depth.max,5);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ambad".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(3,seq.matchingGroups.get(0).size());
@@ -139,13 +132,12 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void testMultipleCapture() {
-		Pattern seq = new Pattern("a([bc])d(mn)?");
-		seq.compile().minimize();
+		Sequence seq = new Pattern("a([bc])d(mn)?").compile();
 		System.out.println(Util.toJson(seq));
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,3);
 		Assert.assertEquals(depth.max,5);
-		CoreMatcher matcher = seq.getCoreMatcher();
+		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abdmn".toCharArray()));
 		Assert.assertEquals(2,seq.matchingGroups.size());
 		Assert.assertEquals(1,seq.matchingGroups.get(0).size());
@@ -161,9 +153,8 @@ public class PatternTestCaptureNodes {
 	
 	@Test
 	public void testCaptureAndLazyNodes() {
-		os.nushi.jfree.matcher.LazyMatcher matcher = new os.nushi.jfree.matcher.LazyMatcher();
-		Pattern seq = new Pattern("a([bc])d(mn|o)\\1a\\2");
-		seq.compile().minimize();
+		LazyMatcher matcher = new LazyMatcher();
+		Sequence seq = new Pattern("a([bc])d(mn|o)\\1a\\2").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
 		Assert.assertEquals(depth.min,7);
 		Assert.assertEquals(depth.max,8);
@@ -190,8 +181,8 @@ public class PatternTestCaptureNodes {
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
-		Assert.assertEquals(FAILED,matcher.match('a','m'));//Value of lazy node should not be broken
-		Assert.assertEquals(FAILED,matcher.match('n'));
+		Assert.assertEquals(MATCHED,matcher.match('a','m'));
+		Assert.assertEquals(PASSED,matcher.match('n'));
 		System.out.println(seq.matchingGroups);
 		
 	}
@@ -199,8 +190,7 @@ public class PatternTestCaptureNodes {
 
 	@Test
 	public void testToJson() {
-		Pattern seq = new Pattern("a([bc])d(mn)?");
-		seq.compile();seq.minimize();
+		Sequence seq = new Pattern("a([bc])d(mn)?").compile();
 		System.out.println(Util.toJson(seq));
 	}
 	

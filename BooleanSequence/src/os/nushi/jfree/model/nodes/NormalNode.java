@@ -1,5 +1,6 @@
 package os.nushi.jfree.model.nodes;
 
+import os.nushi.jfree.Result;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
 
@@ -13,8 +14,11 @@ public class NormalNode extends Node {
 	}
 
 	@Override
-	public boolean match(char[] ch, Counter index) {
-		return super.value == ch[index.counter];
+	public Result match(char[] ch, Counter index) {
+		if(super.value == ch[index.counter])
+			return Result.PASSED;
+		else
+			return Result.FAILED;
 	}
 	
 }

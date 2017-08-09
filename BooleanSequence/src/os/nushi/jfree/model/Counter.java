@@ -9,4 +9,9 @@ public class Counter {
 	}
 	
 	public int counter;
+
+	@Override
+	public String toString() {
+		return counter + "";
+	}
 }

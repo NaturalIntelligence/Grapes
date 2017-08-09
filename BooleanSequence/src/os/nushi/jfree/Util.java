@@ -27,6 +27,8 @@ package os.nushi.jfree;
 
 import java.util.HashSet;
 import java.util.Set;
+import os.nushi.jfree.model.nodes.Node;
+import os.nushi.jfree.model.SequenceLength;
 
 /**
  * @author Amit Gupta
@@ -35,13 +37,13 @@ import java.util.Set;
 public class Util {
 
 	
-	public static String toJson(Pattern reSequence){
-		os.nushi.jfree.model.nodes.Node parentNode = reSequence.startNode;
-		Set<os.nushi.jfree.model.nodes.Node> pocessedNode = new HashSet<os.nushi.jfree.model.nodes.Node>();
+	public static String toJson(Sequence reSequence){
+		Node parentNode = reSequence.startNode;
+		Set<Node> pocessedNode = new HashSet<Node>();
 		return toJson(parentNode,"{", pocessedNode) + "}";
 	}
 	
-	private static String toJson(os.nushi.jfree.model.nodes.Node parentNode, String jSonString, Set<os.nushi.jfree.model.nodes.Node> pocessedNode){
+	private static String toJson(Node parentNode, String jSonString, Set<Node> pocessedNode){
 		if(parentNode.next.isEmpty()){
 			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) ;
 			if(parentNode.isEndNode) {
@@ -60,7 +62,7 @@ public class Util {
 			}
 			if(!pocessedNode.contains(parentNode)){
 				jSonString += ",\"links\":[";
-				for(os.nushi.jfree.model.nodes.Node node : parentNode.next){
+				for(Node node : parentNode.next){
 					jSonString += "{";
 					jSonString = toJson(node,jSonString,pocessedNode);
 					jSonString += "},";
@@ -78,20 +80,20 @@ public class Util {
 		return value.equals("\"") ? "\\\"" : value;
 	}
 
-	private static String replaceNull(os.nushi.jfree.model.nodes.Node parentNode) {
+	private static String replaceNull(Node parentNode) {
 		return parentNode.resultType == null ? " " : parentNode.resultType.toString();
 	}
 	
-	public static void mergeSequences(Pattern reSequenceL, Pattern reSequenceR){
+	public static void mergeSequences(Sequence reSequenceL, Sequence reSequenceR){
 		reSequenceL.startNode.next.addAll(reSequenceR.startNode.next);
 		mergeSequences(reSequenceL.startNode.next);
 		reSequenceL.updatePathLength();
 	}
 	
-	private static void mergeSequences(Set<os.nushi.jfree.model.nodes.Node> links) {
-		Set<os.nushi.jfree.model.nodes.Node> toRemov = new HashSet<os.nushi.jfree.model.nodes.Node>();
-		for (os.nushi.jfree.model.nodes.Node nodeL : links) {
-			for (os.nushi.jfree.model.nodes.Node nodeR : links) {
+	private static void mergeSequences(Set<Node> links) {
+		Set<Node> toRemov = new HashSet<Node>();
+		for (Node nodeL : links) {
+			for (Node nodeR : links) {
 				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemov.contains(nodeL)){
 					mergeNodes(nodeL, nodeR);
 					mergeSequences(nodeL.next);
@@ -102,24 +104,24 @@ public class Util {
 		links.removeAll(toRemov);
 	}
 
-	public static void mergeNodes(os.nushi.jfree.model.nodes.Node nodeL, os.nushi.jfree.model.nodes.Node nodeR) {
+	public static void mergeNodes(Node nodeL, Node nodeR) {
 		nodeL.next.addAll(nodeR.next);
 		nodeL.last.addAll(nodeR.last);
-			nodeL.isEndNode |= nodeR.isEndNode;
-			if(nodeL.resultType == null)
-				nodeL.resultType = nodeR.resultType;	
+		nodeL.isEndNode |= nodeR.isEndNode;
+		if(nodeL.resultType == null)
+			nodeL.resultType = nodeR.resultType;
 
 		//update references
-		for (os.nushi.jfree.model.nodes.Node nextNode : nodeR.next) {
+		for (Node nextNode : nodeR.next) {
 			nextNode.last.remove(nodeR);
 			nextNode.last.add(nodeL);
 		}
 	}
 	
-	public static void mergeDuplicateNodes(Set<os.nushi.jfree.model.nodes.Node> links) {
-		Set<os.nushi.jfree.model.nodes.Node> toRemov = new HashSet<os.nushi.jfree.model.nodes.Node>();
-		for (os.nushi.jfree.model.nodes.Node nodeL : links) {
-			for (os.nushi.jfree.model.nodes.Node nodeR : links) {
+	public static void mergeDuplicateNodes(Set<Node> links) {
+		Set<Node> toRemov = new HashSet<Node>();
+		for (Node nodeL : links) {
+			for (Node nodeR : links) {
 				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemov.contains(nodeL)){
 					mergeNodes(nodeL, nodeR);
 					toRemov.add(nodeR);
@@ -129,22 +131,22 @@ public class Util {
 		links.removeAll(toRemov);
 	}
 	
-	public static void mergeAllDuplicateNodes(os.nushi.jfree.model.nodes.Node parentNode){
+	public static void mergeAllDuplicateNodes(Node parentNode){
 		Util.mergeDuplicateNodes(parentNode.next);
-		for(os.nushi.jfree.model.nodes.Node node : parentNode.next){
+		for(Node node : parentNode.next){
 			mergeAllDuplicateNodes(node);
 		}
 	}
 	
-	public static int count(Pattern reSequence){
-		os.nushi.jfree.model.nodes.Node parentNode = reSequence.startNode;
-		Set<os.nushi.jfree.model.nodes.Node> nodesToCount = new HashSet<os.nushi.jfree.model.nodes.Node>();
+	public static int count(Sequence reSequence){
+		Node parentNode = reSequence.startNode;
+		Set<Node> nodesToCount = new HashSet<Node>();
 		count(parentNode,nodesToCount);
 		return nodesToCount.size();
 	}
 	
-	private static void count(os.nushi.jfree.model.nodes.Node parentNode, Set<os.nushi.jfree.model.nodes.Node> nodesToCount){
-		for(os.nushi.jfree.model.nodes.Node node : parentNode.next){
+	private static void count(Node parentNode, Set<Node> nodesToCount){
+		for(Node node : parentNode.next){
 			if(nodesToCount.contains(node)) continue;
 			count(node,nodesToCount);
 		}
@@ -152,14 +154,14 @@ public class Util {
 	}
 	
 
-	public static os.nushi.jfree.model.SequenceLength calculateDepth(Pattern reSequence){
-		os.nushi.jfree.model.SequenceLength sequenceLength = new os.nushi.jfree.model.SequenceLength(-1,-1);
+	public static SequenceLength calculateDepth(Sequence reSequence){
+		SequenceLength sequenceLength = new SequenceLength(-1,-1);
 		pathLength(reSequence.startNode, 0, sequenceLength);
 		return sequenceLength;
 	}
 	
-	private static void pathLength(os.nushi.jfree.model.nodes.Node parentNode, int counter, os.nushi.jfree.model.SequenceLength sequenceLength){
-		for(os.nushi.jfree.model.nodes.Node node : parentNode.next){
+	private static void pathLength(Node parentNode, int counter, SequenceLength sequenceLength){
+		for(Node node : parentNode.next){
 			pathLength(node, counter+1,sequenceLength);
 		}
 		if(parentNode.isEndNode) {
@@ -168,7 +170,7 @@ public class Util {
 		
 	}
 	
-	private static void calculateMinMax(int counter, os.nushi.jfree.model.SequenceLength sequenceLength) {
+	private static void calculateMinMax(int counter, SequenceLength sequenceLength) {
 		if(sequenceLength.min == -1 && sequenceLength.max == -1){
 			sequenceLength.min = counter;
 			sequenceLength.max = counter;
@@ -179,14 +181,14 @@ public class Util {
 		
 	}
 
-	public static Set<os.nushi.jfree.model.nodes.Node> getEndNodes(Pattern reSequence){
-		Set<os.nushi.jfree.model.nodes.Node> nodes = new HashSet<os.nushi.jfree.model.nodes.Node>();
+	public static Set<Node> getEndNodes(Sequence reSequence){
+		Set<Node> nodes = new HashSet<Node>();
 		collectEndNodes(reSequence.startNode, nodes);
 		return nodes;
 	}
 	
-	private static void collectEndNodes(os.nushi.jfree.model.nodes.Node parentNode, Set<os.nushi.jfree.model.nodes.Node> nodes) {
-		for(os.nushi.jfree.model.nodes.Node node : parentNode.next){
+	private static void collectEndNodes(Node parentNode, Set<Node> nodes) {
+		for(Node node : parentNode.next){
 			collectEndNodes(node,nodes);
 		}
 		if(parentNode.isEndNode) {

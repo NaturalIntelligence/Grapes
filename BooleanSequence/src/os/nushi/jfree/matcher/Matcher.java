@@ -27,7 +27,9 @@ SOFTWARE.
  */
 package os.nushi.jfree.matcher;
 
+import os.nushi.jfree.ResultIdentifier;
+
 public interface Matcher {
-	os.nushi.jfree.ExpressionIdentifier match(char... ch);
+	ResultIdentifier match(char... ch);
 
 }

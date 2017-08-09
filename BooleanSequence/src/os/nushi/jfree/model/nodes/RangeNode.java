@@ -1,6 +1,8 @@
 package os.nushi.jfree.model.nodes;
 
+import os.nushi.jfree.Result;
 import os.nushi.jfree.ds.primitive.CharArrList;
+import os.nushi.jfree.util.CharUtil;
 
 public class RangeNode extends Node {
 
@@ -18,8 +20,12 @@ public class RangeNode extends Node {
 	}
 
 	@Override
-	public boolean match(char[] ch, os.nushi.jfree.model.Counter index) {
-		return os.nushi.jfree.util.CharUtil.isRange(ch[index.counter], start, end);
+	public Result match(char[] ch, os.nushi.jfree.model.Counter index) {
+		if(CharUtil.isRange(ch[index.counter], start, end)){
+			return Result.PASSED;
+		}else{
+			return Result.FAILED;
+		}
 	}
 	
 	@Override

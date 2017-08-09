@@ -27,26 +27,27 @@ SOFTWARE.
  */
 package os.nushi.jfree.matcher;
 
-import os.nushi.jfree.BooleanIdentifier;
-import os.nushi.jfree.Pattern;
+import os.nushi.jfree.Result;
+import os.nushi.jfree.ResultIdentifier;
+import os.nushi.jfree.Sequence;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
 import os.nushi.jfree.model.nodes.Node;
 
 public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
 
-	private Pattern reSequence;
+	private Sequence reSequence;
 
 	public LazyMatcher() {
 		
 	}
 	
-	public LazyMatcher(Pattern reSequence) {
+	public LazyMatcher(Sequence reSequence) {
 		this.reSequence = reSequence;
 		state = this.reSequence.startNode;
 	}
 	
-	public void setSequence(Pattern reSequence){
+	public void setSequence(Sequence reSequence){
 		this.reSequence = reSequence;
 		state = this.reSequence.startNode;
 	}
@@ -54,18 +55,18 @@ public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
 	Node state;
 	
 	@Override
-	public os.nushi.jfree.ExpressionIdentifier match(char... ch){
-		if(ch.length == 0) return BooleanIdentifier.FAILED;
+	public ResultIdentifier match(char... ch){
+		if(ch.length == 0) return Result.FAILED;
 		Counter index = new Counter();
 		for (; index.counter < ch.length; index.counter++ ) {
 			Node matchingNode = match(ch,index,state);
 			if(matchingNode!=null)
 				state = matchingNode;
 			else
-				return BooleanIdentifier.FAILED;;
+				return Result.FAILED;;
 		}
 		if(state.isEndNode) return state.resultType;
-		return BooleanIdentifier.MATCHED;
+		return Result.MATCHED;
 	}
 	
 	public void reset(){
@@ -77,7 +78,11 @@ public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
 	
 	private Node match(char[] ch,Counter index , Node nd) {
 		for (Node node : nd.next) {
-			if(node.match(ch,index)) return node.getNode();
+			Result result = node.match(ch,index);
+			if( result == Result.MATCHED)
+				return nd;
+			else if(result == Result.PASSED)
+				return node.getNode();
 		}
 		return null;
 	}

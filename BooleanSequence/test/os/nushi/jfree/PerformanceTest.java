@@ -12,15 +12,14 @@ public class PerformanceTest {
         for(int i = 0 ; i < 100000; i++);
 
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^[abc](ab|c?d)?ef$");
-        Pattern seq = new Pattern("[abc](ab|c?d)?ef");
-        seq.compile();seq.minimize();
+        Sequence seq = new Pattern("[abc](ab|c?d)?ef").compile();
         long startTime = 0L;
         System.gc();
         for(int i = 0 ; i < 100000; i++);
         Matcher matcher2 = pattern.matcher("");
 
         startTime = System.nanoTime();
-        CoreMatcher matcher = seq.getCoreMatcher();
+        CoreMatcher matcher = new CoreMatcher(seq);
         for(int i = 0 ; i < 100000; i++){
             matcher.match("cabef".toCharArray());//long
             matcher.match("cef".toCharArray());//short
@@ -33,13 +32,6 @@ public class PerformanceTest {
         for(int i = 0 ; i < 100000; i++);
         startTime = System.nanoTime();
         for(int i = 0 ; i < 100000; i++){
-			/*matcher.reset("cabef");//long
-			matcher.matches();
-			matcher.reset("cef"); //short
-			matcher.matches();
-			matcher.reset("ce"); //invalid
-			matcher.matches();*/
-
             matcher2.reset("cabef");//long
             matcher2.lookingAt();
             matcher2.reset("cef"); //short
@@ -53,16 +45,16 @@ public class PerformanceTest {
 
     }
 
-    @Test
+    /*@Test
     public void tempTest(){
-        /*java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("a(b)\\{10}");
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("a(b)\\{10}");
         Matcher matcher = pattern.matcher("abb0");
-        System.out.println(matcher.find());*/
+        System.out.println(matcher.find());
 
 
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\1(a)(b)(c)(d)(e)(f)(g)(h)\\10(i)(j)(k)(l)(m)(n)(o)(p)\\10");
         Matcher matcher = pattern.matcher("abcdefgha0iklmnopj");
         System.out.println(matcher.find());
 
-    }
+    }*/
 }
