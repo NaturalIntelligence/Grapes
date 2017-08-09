@@ -62,23 +62,6 @@ public class NodeFactory {
         return new NormalNode(ch,null);
     }
 
-    /**
-     * Bracket sequence can have either normal node or range node
-     * bracket : [a-zA-Z0-9%] = 4 nodes
-     * @return
-     */
-    /*public static Set<Node> generateNodesForBracketSequence(char[] re,Integer index,boolean shouldBeCaptured,CharArrList matchingCharSequence) {
-        Set<Node> newNodes = new HashSet<Node>();
-        for(index++;re[index] != ']';index++){
-            if(re[index+1]=='-'){
-                newNodes.add(NodeFactory.getRangeNode(re[index],re[index+2],shouldBeCaptured,matchingCharSequence));
-                index=index+2;
-                continue;
-            }
-            newNodes.add(NodeFactory.getNode(re[index],shouldBeCaptured,matchingCharSequence));
-        }
-        return newNodes;
-    }*/
 
     //TODO: fix when multidigit backreference or when total capture groups are less
     public static BackReferenceNode getBackReferenceNode(char c, List<CharArrList> matchingGroups) {

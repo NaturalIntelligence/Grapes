@@ -120,7 +120,6 @@ public class SubSequenceTest {
 		assertFalse(matcher.match("acde".toCharArray()));
 		assertFalse(matcher.match("abcd".toCharArray()));
 		
-		//TODO : Bug
 		seq = new Pattern("a(b|(bc|cd))").compile();
 		System.out.println(Util.toJson(seq));
 		System.out.println(Util.count(seq));

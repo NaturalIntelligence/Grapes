@@ -122,10 +122,9 @@ public class PatternTestCaptureNodes {
 		assertTrue(matcher.match("ambad".toCharArray()));
 		Assert.assertEquals(1,seq.matchingGroups.size());
 		Assert.assertEquals(3,seq.matchingGroups.get(0).size());
-		//TODO : Bug
-		//assertTrue(matcher.match("ambd".toCharArray()));
-		//Assert.assertEquals(1,seq.matchingGroups.size());
-		//Assert.assertEquals(2,seq.matchingGroups.get(0).size());
+		assertTrue(matcher.match("ambd".toCharArray()));
+		Assert.assertEquals(1,seq.matchingGroups.size());
+		Assert.assertEquals(2,seq.matchingGroups.get(0).size());
 		
 		
 	}
