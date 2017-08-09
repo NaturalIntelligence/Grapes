@@ -17,10 +17,14 @@ import java.util.List;
 public class BackReferenceNode extends Node {
 
 	private List<CharArrList> refForMatchingGroups;
+	private final int seqCounter;
+	int val;
 
-	public BackReferenceNode(char c, List<CharArrList> ref) {
-		super(c);
+	public BackReferenceNode(int v, List<CharArrList> ref, int seqCounter) {
+		super('0');
+		this.val = v;
 		refForMatchingGroups = ref;
+		this.seqCounter = seqCounter;
 	}
 
 	int cnt=0;
@@ -29,9 +33,8 @@ public class BackReferenceNode extends Node {
 	@Override
 	public Result match(char[] ch, Counter index) {
 		if(cnt==0){
-			int groupNum = Integer.parseInt(super.value + "");
-			if(refForMatchingGroups.size() >= groupNum) {
-				groupVal = refForMatchingGroups.get(groupNum - 1);
+			if(seqCounter >= this.val) {
+				groupVal = refForMatchingGroups.get(this.val - 1);
 				if(groupVal.get(cnt) == ch[index.counter]){
 					cnt++;
 					if(cnt == groupVal.size()) {

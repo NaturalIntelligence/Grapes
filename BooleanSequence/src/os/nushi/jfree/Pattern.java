@@ -75,15 +75,14 @@ public class Pattern {
 
 	public Sequence compile(){
 		List<CharArrList> matchingGroups = new ArrayList<>();
-		Sequence sequence = compile(re,false,false, matchingGroups);
+		Sequence sequence = compile(re,false,false, matchingGroups,0);
 		minimize(sequence);
 
 		return sequence;
 
 	}
 	Node currentNode,endNode;
-	//TODO: make wrapper compile and call comppile();minimize();
-	Sequence compile(char[] re,boolean isItSubSequence, boolean shouldBeCaptured,List<CharArrList> mG ){
+	Sequence compile(char[] re,boolean isItSubSequence, boolean shouldBeCaptured,List<CharArrList> mG ,int seqCounter){
 		Node lastNode = null;
 
 		endNode = new NormalNode();
@@ -96,13 +95,15 @@ public class Pattern {
 			if(re[index] == '('){
 				char[] groupStr = extractGroupString();
 				Pattern subPattern = new Pattern(groupStr);
-				Sequence subSequence = subPattern.compile(groupStr,true,true,mG);
+				Sequence subSequence = subPattern.compile(groupStr,true,true,mG,seqCounter);
 
 				Util.mergeNodes(currentNode, subSequence.startNode);
 
 				//go forward
 				lastNode = currentNode;
 				currentNode = subPattern.endNode;
+				seqCounter++;
+
 			}else if(re[index] == '|'){
 				closeTheCurrentSequence(isItSubSequence);
 				//Start new sequence
@@ -119,7 +120,23 @@ public class Pattern {
 				char c = re[++index];
 
 				if(CharUtil.isDigit(c)){
-					Node node = NodeFactory.getBackReferenceNode(c,mG);
+					int len = (seqCounter+"").length();
+					String backRefNum = c+"";
+					for(int i=1;i<len;i++){
+						char nextDigit = re[i+index];
+						if(CharUtil.isDigit(nextDigit)){
+							backRefNum += nextDigit;
+						}else{
+							break;
+						}
+					}
+					if(Integer.parseInt(backRefNum) > seqCounter && backRefNum.length() > 1){
+						backRefNum = backRefNum.substring(0,backRefNum.length()-2);
+					}
+
+					index +=backRefNum.length()-1;
+
+					Node node = NodeFactory.getBackReferenceNode(Integer.parseInt(backRefNum),mG,seqCounter);
 					lastNode = linkNextNode(node);
 				}else{
 					lastNode = linkNextNode(NodeFactory.getNode(c,shouldBeCaptured,sequence.matchingCharSequence));

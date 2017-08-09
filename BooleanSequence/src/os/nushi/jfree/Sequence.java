@@ -14,6 +14,7 @@ public class Sequence {
 
     public CharArrList matchingCharSequence;
     public List<CharArrList> matchingGroups;
+    public int subSequenceCounter;
 
     public Sequence(List<CharArrList> matchingGroups, boolean shouldCapture){
         this.startNode = new NormalNode();

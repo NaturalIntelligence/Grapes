@@ -64,8 +64,8 @@ public class NodeFactory {
 
 
     //TODO: fix when multidigit backreference or when total capture groups are less
-    public static BackReferenceNode getBackReferenceNode(char c, List<CharArrList> matchingGroups) {
-        BackReferenceNode node = new BackReferenceNode(c,matchingGroups);
+    public static BackReferenceNode getBackReferenceNode(int c, List<CharArrList> matchingGroups, int seqCounter) {
+        BackReferenceNode node = new BackReferenceNode(c,matchingGroups,seqCounter);
         return node;
     }
 }
