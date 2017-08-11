@@ -63,6 +63,11 @@ public class PathLengthCalculatorTest {
         Assert.assertEquals(5,new PathLengthCalculator().length("a{5}(?:bcd)*".toCharArray()).x);
         Assert.assertEquals(5,new PathLengthCalculator().length("a{5}(\\?!bcd)*".toCharArray()).x);
 
+
+        Assert.assertEquals(2,new PathLengthCalculator().length("ab|cde".toCharArray()).x);
+        Assert.assertEquals(3,new PathLengthCalculator().length("a(b|cd)e".toCharArray()).x);
+        Assert.assertEquals(3,new PathLengthCalculator().length("(bgh|cd?)ef".toCharArray()).x);
+
     }
 
     @Test
@@ -117,11 +122,16 @@ public class PathLengthCalculatorTest {
 
 
         //?!,?:,?=, ?<=, ?<!
-        Assert.assertEquals(7,new PathLengthCalculator().length("a(?=bc{1,3}d)ef".toCharArray()).y);
+        Assert.assertEquals(8,new PathLengthCalculator().length("a(?=bc{1,3}d)ef".toCharArray()).y);
         Assert.assertEquals(-1,new PathLengthCalculator().length("a{3,}(?<=b?cd)ef".toCharArray()).y);
         Assert.assertEquals(9,new PathLengthCalculator().length("a{2,4}(?<!bcd)3r".toCharArray()).y);
         Assert.assertEquals(-1,new PathLengthCalculator().length("a{5}(?:bcd)*".toCharArray()).y);
         Assert.assertEquals(-1,new PathLengthCalculator().length("a{5}(\\?!bcd)*".toCharArray()).y);
+
+        Assert.assertEquals(3,new PathLengthCalculator().length("ab|cde".toCharArray()).y);
+        Assert.assertEquals(4,new PathLengthCalculator().length("a(b|cd)e".toCharArray()).y);
+        Assert.assertEquals(5,new PathLengthCalculator().length("(bgh|cd?)ef".toCharArray()).y);
+
 
     }
 }

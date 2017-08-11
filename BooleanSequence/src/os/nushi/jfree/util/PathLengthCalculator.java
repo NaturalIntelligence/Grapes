@@ -9,6 +9,7 @@ import java.util.List;
  * Supporting chars: *, ., ?, (), +, \\n, {},[], (?:...),(?!...),(?=...),(?<!...),(?<=...)
  * To support: ,...
  */
+//TODO: |
 public class PathLengthCalculator {
 
     private List<Pair<Integer>> groups = new ArrayList<>();
@@ -43,7 +44,7 @@ public class PathLengthCalculator {
                 }else if(re[i+1] == '?'){
                     groups.add(new Pair<>(0,groupLength.y));
                     i++;
-                    maxCounter+=setMaxLength(maxCounter,groupLength.y);;
+                    maxCounter=setMaxLength(maxCounter,groupLength.y);;
                 }else if(re[i+1] == '*' ){
                     groups.add(new Pair<>(0,-1));
                     i++;
@@ -56,7 +57,7 @@ public class PathLengthCalculator {
                     Triplet<Integer> result = extractRange(re, i+1);
                     i= result.z+1;
                     minCounter+=result.x*groupLength.x;
-                    maxCounter+=result.y*groupLength.y;
+                    maxCounter= setMaxLength(maxCounter,result.y*groupLength.y);
                     groups.add(groupLength);
 
                 }else{
@@ -90,6 +91,18 @@ public class PathLengthCalculator {
                     maxCounter = setMaxLength(maxCounter,groupLength.y);
 
                 }
+            }else if(re[i] == '|' ){
+                char[] left = CharArrayUtil.subArray(re,0,i-1);
+                char[] right = CharArrayUtil.subArray(re,i+1,re.length-1);
+
+                Pair<Integer> leftSideLength = length(left);
+                Pair<Integer> rightSideLength = length(right);
+
+                int minLen = leftSideLength.x < rightSideLength.x ? leftSideLength.x : rightSideLength.x;
+                int maxLen = leftSideLength.y > rightSideLength.y ? leftSideLength.y : rightSideLength.y;
+
+                return new Pair(minLen,maxLen);
+
             }else if(re[i] == '[' ){//[a-z_\\[\\]
                 int j=i;
                 for (; re[j] != ']' ;j++){
@@ -167,13 +180,13 @@ public class PathLengthCalculator {
                 max+=re[j];
             }
         }
-        if(max == "") max = "-1";
-        else if(max == "" && !afterComma) max = min;
+        if(max == "" && !afterComma) max = min;
+        else if(max == "") max = "-1";
         return new Triplet<>(Integer.parseInt(min),Integer.parseInt(max),j);
     }
 
     private int setMaxLength(int oldLength, int newLength){
-        if(oldLength < 0) return -1;
+        if(oldLength < 0 || newLength < 0) return -1;
         else return oldLength+newLength;
     }
 }
