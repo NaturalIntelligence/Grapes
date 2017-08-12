@@ -20,9 +20,8 @@ public class SubSequenceTest {
 	public void testGroupingWithOr() {
 		Sequence seq = new Pattern("ab(cd|ef)").compile();
 
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,4);
-		Assert.assertEquals(depth.max,4);
+		Assert.assertEquals(seq.minPathLength,4);
+		Assert.assertEquals(seq.maxPathLength,4);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abcd".toCharArray()));
 		assertTrue(matcher.match("abef".toCharArray()));
@@ -31,17 +30,15 @@ public class SubSequenceTest {
 
 		seq = new Pattern("(ab|cd)ef").compile();
 		matcher.setSequence(seq);
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,4);
-		Assert.assertEquals(depth.max,4);
+		Assert.assertEquals(seq.minPathLength,4);
+		Assert.assertEquals(seq.maxPathLength,4);
 		assertTrue(matcher.match("cdef".toCharArray()));
 		assertTrue(matcher.match("abef".toCharArray()));
 
 		seq = new Pattern("ab(cd|ef)gh").compile();
 		matcher.setSequence(seq);
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,6);
-		Assert.assertEquals(depth.max,6);
+		Assert.assertEquals(seq.minPathLength,6);
+		Assert.assertEquals(seq.maxPathLength,6);
 		assertTrue(matcher.match("abcdgh".toCharArray()));
 		assertTrue(matcher.match("abefgh".toCharArray()));
 		assertFalse(matcher.match("abcdef".toCharArray()));
@@ -51,9 +48,8 @@ public class SubSequenceTest {
 	@Test
 	public void testOptional() {		
 		Sequence seq = new Pattern("(ab|cd)?ef").compile();
-		os.nushi.jfree.model.SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,4);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,4);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		matcher.setSequence(seq);
 		assertTrue(matcher.match("cdef".toCharArray()));
@@ -61,9 +57,8 @@ public class SubSequenceTest {
 		assertTrue(matcher.match("ef".toCharArray()));
 		
 		seq = new Pattern("(ab|c?d)?ef").compile();
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,4);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,4);
 		matcher.setSequence(seq);
 		assertTrue(matcher.match("cdef".toCharArray()));
 		assertTrue(matcher.match("abef".toCharArray()));
@@ -72,9 +67,8 @@ public class SubSequenceTest {
 		assertTrue(matcher.match("cdef".toCharArray()));
 		
 		seq = new Pattern("(ab|c?d)?").compile();
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,0);
-		Assert.assertEquals(depth.max,2);
+		Assert.assertEquals(seq.minPathLength,0);
+		Assert.assertEquals(seq.maxPathLength,2);
 		matcher.setSequence(seq);
 		assertTrue(matcher.match("cd".toCharArray()));
 		assertTrue(matcher.match("ab".toCharArray()));
@@ -82,9 +76,8 @@ public class SubSequenceTest {
 		assertTrue(matcher.match("".toCharArray()));
 		
 		seq = new Pattern("ab(ab|c?d)?").compile();
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,4);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,4);
 		matcher.setSequence(seq);
 		assertTrue(matcher.match("ab".toCharArray()));
 		assertFalse(matcher.match("".toCharArray()));
@@ -93,9 +86,8 @@ public class SubSequenceTest {
 	@Test
 	public void testBracket() {
 		Sequence seq = new Pattern("a([bc]|d)?e").compile();
-		os.nushi.jfree.model.SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,3);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		System.out.println(Util.toJson(seq));
 		System.out.println(Util.count(seq));
@@ -110,9 +102,9 @@ public class SubSequenceTest {
 	@Test
 	public void testNestedGrouping() {
 		Sequence seq = new Pattern("a(b(cd)?)?e").compile();
-		os.nushi.jfree.model.SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,5);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,5);
+		System.out.println(Util.toJson(seq));
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abe".toCharArray()));
 		assertTrue(matcher.match("abcde".toCharArray()));
@@ -123,9 +115,8 @@ public class SubSequenceTest {
 		seq = new Pattern("a(b|(bc|cd))").compile();
 		System.out.println(Util.toJson(seq));
 		System.out.println(Util.count(seq));
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,3);
 		matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ab".toCharArray()));
 		assertTrue(matcher.match("abc".toCharArray()));

@@ -90,6 +90,9 @@ public class PathLengthCalculator {
                     minCounter += groupLength.x;
                     maxCounter = setMaxLength(maxCounter,groupLength.y);
 
+                }else{
+                    minCounter+=1;
+                    maxCounter= setMaxLength(maxCounter,1);
                 }
             }else if(re[i] == '|' ){
                 char[] left = CharArrayUtil.subArray(re,0,i-1);

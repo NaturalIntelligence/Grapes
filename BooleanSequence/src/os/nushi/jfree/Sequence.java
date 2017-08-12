@@ -32,12 +32,6 @@ public class Sequence {
     public int minPathLength;
     public int maxPathLength;
 
-    public void updatePathLength(){
-        SequenceLength depth = Util.calculateDepth(this);
-        minPathLength = depth.min;
-        maxPathLength = depth.max;
-    }
-
     public Sequence merge(Sequence sequence){
         Util.mergeSequences(this, sequence);
         return this;

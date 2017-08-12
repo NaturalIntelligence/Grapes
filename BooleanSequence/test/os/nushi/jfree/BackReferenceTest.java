@@ -14,26 +14,18 @@ public class BackReferenceTest {
      * It should not allow back reference for the group which is not captured yet.
      * Eg: "\\1(a)" is invalid.
      */
-    @Test
+    @Test(expected = InvalidExpression.class)
     public void testForInvalidBackReferencePosition(){
         Sequence seq = new Pattern("\\1(a)").compile();
-
-        Matcher matcher = new CoreMatcher(seq);;
-
-        Assert.assertEquals(FAILED,matcher.match("aa".toCharArray()));
     }
 
     /**
      * It should not allow invalid back reference number.
      * Eg: "(a)\\2" is invalid.
      */
-    @Test
+    @Test(expected = InvalidExpression.class)
     public void testForInvalidBackReferenceNumber(){
         Sequence seq = new Pattern("(a)\\2").compile();
-
-        Matcher matcher = new CoreMatcher(seq);;
-
-        Assert.assertEquals(FAILED,matcher.match("aa".toCharArray()));
     }
 
     /**
@@ -48,5 +40,6 @@ public class BackReferenceTest {
         Matcher matcher = new CoreMatcher(seq);
 
         Assert.assertEquals(PASSED,matcher.match("abcdefghia0jkj".toCharArray()));
+        Assert.assertEquals(PASSED,matcher.match("abcdefghia0jkj".toCharArray()));//to test if all the counters are reset
     }
 }

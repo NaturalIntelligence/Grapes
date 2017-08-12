@@ -30,6 +30,8 @@ import os.nushi.jfree.model.nodes.Node;
 import os.nushi.jfree.model.nodes.NormalNode;
 import os.nushi.jfree.util.CharArrayUtil;
 import os.nushi.jfree.util.CharUtil;
+import os.nushi.jfree.util.Pair;
+import os.nushi.jfree.util.PathLengthCalculator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -74,12 +76,18 @@ public class Pattern {
 	Integer index;
 
 	public Sequence compile(){
-		List<CharArrList> matchingGroups = new ArrayList<>();
-		Sequence sequence = compile(re,false,false, matchingGroups,0);
-		minimize(sequence);
+	    try {
+            List<CharArrList> matchingGroups = new ArrayList<>();
+            Sequence sequence = compile(re, false, false, matchingGroups, 0);
+            minimize(sequence);
+            Pair<Integer> pathLength = new PathLengthCalculator().length(re);
+            sequence.minPathLength = pathLength.x;
+            sequence.maxPathLength = pathLength.y;
 
-		return sequence;
-
+            return sequence;
+        }catch (Exception e){
+	        throw new InvalidExpression("Kindly check the regular expression once again");
+        }
 	}
 	Node currentNode,endNode;
 	Sequence compile(char[] re,boolean isItSubSequence, boolean shouldBeCaptured,List<CharArrList> mG ,int seqCounter){
@@ -104,7 +112,12 @@ public class Pattern {
 				currentNode = subPattern.endNode;
 				seqCounter++;
 
-			}else if(re[index] == '|'){
+			}/*else if(re[index] == '+'){ // ->b->b*->c
+
+			}else if(re[index] == '*'){//a->b*->c;a->c
+				currentNode.next.add(currentNode); //b*: b->b
+				linkNextNode(new NormalNode());
+			}*/else if(re[index] == '|'){
 				closeTheCurrentSequence(isItSubSequence);
 				//Start new sequence
 				currentNode = sequence.startNode;
@@ -155,6 +168,7 @@ public class Pattern {
 	 * bracket : [a-zA-Z0-9%] = 4 nodes
 	 * @return
 	 */
+	//TODO: test for [a\\]]
 	private Set<Node> generateNodesForBracketSequence(boolean shouldBeCaptured,CharArrList matchingCharSequence) {
 		Set<Node> newNodes = new HashSet<Node>();
 		for(index++;re[index] != ']';index++){
@@ -285,17 +299,25 @@ public class Pattern {
 	public void minimize(Sequence sequence){
 		Node parentNode = sequence.startNode;
 		removeBlankNodes(parentNode);
+		//merge remaining nodes
 		Util.mergeAllDuplicateNodes(parentNode);
 		System.gc();
-		sequence.updatePathLength();
+
 	}
 
+	/**
+	 * Remove jointing nodes and merge the links for last and next nodes.
+	 * @param parentNode
+	 */
 	private void removeBlankNodes(Node parentNode) {
 		Set<Node> toRemove = new HashSet<Node>();
 
 		for(Node node : parentNode.next){
-			if(!node.next.isEmpty())
-				removeBlankNodes(node);
+			if(!node.next.isEmpty()) {
+				if (!node.equals(parentNode)) {
+					removeBlankNodes(node);
+				}
+			}
 
 			if(node.isJointNode()){
 				if(node.isEndNode){
@@ -314,15 +336,14 @@ public class Pattern {
 				nextNode.last.addAll(node.last);
 			}
 		}
-		Util.mergeDuplicateNodes(parentNode.next);
+
+		if(toRemove.size() > 0){
+			removeBlankNodes(parentNode);
+		}
+		//if (!parentNode.next.contains(parentNode)) {
+			Util.mergeDuplicateNodes(parentNode.next);
+		//}
 	}
 
-	/*public CoreMatcher getCoreMatcher(){
-		return new CoreMatcher(this);
-	}
-	
-	public ProgressiveMatcher getProgressiveMatcher(){
-		return new ProgressiveMatcher(this);
-	}*/
 }
 

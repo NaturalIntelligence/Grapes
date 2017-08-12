@@ -14,6 +14,8 @@ import org.junit.Test;
 
 import os.nushi.jfree.matcher.CoreMatcher;
 import os.nushi.jfree.matcher.ProgressiveMatcher;
+import os.nushi.jfree.util.Pair;
+import os.nushi.jfree.util.PathLengthCalculator;
 
 public class PatternTest {
 	
@@ -31,15 +33,9 @@ public class PatternTest {
 		System.out.println(Util.toJson(seq));
 		Assert.assertEquals(8, Util.count(seq));
 		Assert.assertEquals(Util.count(seq),8);
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,6);
-		Assert.assertEquals(depth.max,6);
-		
+
 		seq = new Pattern("ab(cde|c)?mn").compile();
 		Assert.assertEquals(7, Util.count(seq));
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,4);
-		Assert.assertEquals(depth.max,7);
 		Assert.assertEquals(Util.count(seq),7);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abmn".toCharArray()));
@@ -51,19 +47,15 @@ public class PatternTest {
 	@Test
 	public void testMerge() {
 		Sequence seq = new Pattern("ab(cd|ef)?").compile();
-		System.out.println(Util.toJson(seq));
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,4);
-		
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,4);
+
 		Sequence seq2 = new Pattern("ab(cd|gh)i").compile();
-		SequenceLength depth2 = Util.calculateDepth(seq2);
-		Assert.assertEquals(depth2.min,5);
-		Assert.assertEquals(depth2.max,5);
+		Assert.assertEquals(seq2.minPathLength,5);
+		Assert.assertEquals(seq2.maxPathLength,5);
 		Util.mergeSequences(seq,seq2);
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,5);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,5);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abcd".toCharArray()));
 		assertTrue(matcher.match("abef".toCharArray()));
@@ -78,9 +70,8 @@ public class PatternTest {
 	@Test
 	public void testOptional() {
 		Sequence seq = new Pattern("ab?c").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,3);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abc".toCharArray()));
 		assertTrue(matcher.match("ac".toCharArray()));
@@ -95,9 +86,8 @@ public class PatternTest {
 	@Test
 	public void testOr() {
 		Sequence seq = new Pattern("ab|cd").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,2);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,2);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ab".toCharArray()));
 		assertTrue(matcher.match("cd".toCharArray()));
@@ -109,9 +99,8 @@ public class PatternTest {
 	@Test
 	public void testMultipleOr() {
 		Sequence seq = new Pattern("b|bc|bcd").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,1);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(seq.minPathLength,1);
+		Assert.assertEquals(seq.maxPathLength,3);
 		System.out.println(Util.toJson(seq));
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("b".toCharArray()));
@@ -123,8 +112,8 @@ public class PatternTest {
 	public void testIteration() {
 		Sequence seq = new Pattern("ab{53}cd").compile();
 		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,2);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,2);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ab".toCharArray()));
 		assertTrue(matcher.match("cd".toCharArray()));
@@ -135,9 +124,8 @@ public class PatternTest {
 	@Test
 	public void testBackSlash() {
 		Sequence seq = new Pattern("ab\\?c").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,4);
-		Assert.assertEquals(depth.max,4);
+		Assert.assertEquals(seq.minPathLength,4);
+		Assert.assertEquals(seq.maxPathLength,4);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ab?c".toCharArray()));
 		assertFalse(matcher.match("abc".toCharArray()));
@@ -152,10 +140,9 @@ public class PatternTest {
 	@Test
 	public void testRange() {
 		Sequence seq = new Pattern("ab[a-z0-9A-Z]\\[c").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
 		System.out.println(Util.toJson(seq));
-		Assert.assertEquals(depth.min,5);
-		Assert.assertEquals(depth.max,5);
+		Assert.assertEquals(seq.minPathLength,5);
+		Assert.assertEquals(seq.maxPathLength,5);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abm[c".toCharArray()));
 		assertTrue(matcher.match("abM[c".toCharArray()));
@@ -167,9 +154,8 @@ public class PatternTest {
 	@Test
 	public void testAny() {
 		Sequence seq = new Pattern("ab.\\.c").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,5);
-		Assert.assertEquals(depth.max,5);
+		Assert.assertEquals(seq.minPathLength,5);
+		Assert.assertEquals(seq.maxPathLength,5);
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("ab?.c".toCharArray()));
 		assertTrue(matcher.match("abd.c".toCharArray()));
@@ -184,9 +170,8 @@ public class PatternTest {
 	@Test
 	public void testBracket() {
 		Sequence seq = new Pattern("a[bc]d").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,3);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(seq.minPathLength,3);
+		Assert.assertEquals(seq.maxPathLength,3);
 		System.out.println(Util.toJson(seq));
 		CoreMatcher matcher = new CoreMatcher(seq);
 		assertTrue(matcher.match("abd".toCharArray()));
@@ -196,9 +181,8 @@ public class PatternTest {
 		
 		seq = new Pattern("a[bc]?d").compile();
 		matcher.setSequence(seq);
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,2);
-		Assert.assertEquals(depth.max,3);
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,3);
 		assertTrue(matcher.match("abd".toCharArray()));
 		assertTrue(matcher.match("acd".toCharArray()));
 		assertTrue(matcher.match("ad".toCharArray()));
@@ -218,10 +202,7 @@ public class PatternTest {
 	public void testLazyMatch() {
 		os.nushi.jfree.matcher.LazyMatcher matcher = new os.nushi.jfree.matcher.LazyMatcher();
 		Sequence seq = new Pattern("a([bc])d(mn|o)\\1a\\2").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,7);
-		Assert.assertEquals(depth.max,8);
-		
+
 		matcher.setSequence(seq);
 		Assert.assertEquals(FAILED,matcher.match());
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
@@ -250,9 +231,6 @@ public class PatternTest {
 		
 		seq = new Pattern("a(bc|d?e)?").compile();
 		matcher.setSequence(seq);
-		depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min,1);
-		Assert.assertEquals(depth.max,3);
 		Assert.assertEquals(PASSED,matcher.match('a'));//PASSED
 		Assert.assertEquals(PASSED,matcher.match('b','c'));//PASSED
 		Assert.assertEquals(FAILED,matcher.match('e'));//FAILED
@@ -261,9 +239,6 @@ public class PatternTest {
 	@Test
 	public void testProgressiveMatch() {
 		Sequence seq = new Pattern("a([bc])d(mn|o)\\1a\\2").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min, 7);
-		Assert.assertEquals(depth.max, 8);
 		ProgressiveMatcher matcher = new ProgressiveMatcher(seq);
 		
 		Assert.assertEquals(FAILED,matcher.match());
@@ -297,14 +272,6 @@ public class PatternTest {
 		Assert.assertEquals(PASSED,matcher.match('a'));//PASSED
 		Assert.assertEquals(PASSED,matcher.match("abc".toCharArray()));//PASSED
 		Assert.assertEquals(FAILED,matcher.match("abce".toCharArray()));//FAILED
-	}
-	
-	@Test
-	public void testPathLength() {
-		Sequence seq = new Pattern("[abc](ab|c?d)?ef").compile();
-		SequenceLength depth = Util.calculateDepth(seq);
-		Assert.assertEquals(depth.min, 3);
-		Assert.assertEquals(depth.max, 5);
 	}
 	
 	@Test
@@ -348,7 +315,7 @@ public class PatternTest {
 		Matcher matcher = new CoreMatcher(seq);;
 
 
-		Assert.assertEquals(PASSED,matcher.match(".daby;ab".toCharArray()));
+		Assert.assertEquals(PASSED,matcher.match(".dabey;ab".toCharArray()));
 
 	}
 }

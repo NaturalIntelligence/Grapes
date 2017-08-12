@@ -87,7 +87,10 @@ public class Util {
 	public static void mergeSequences(Sequence reSequenceL, Sequence reSequenceR){
 		reSequenceL.startNode.next.addAll(reSequenceR.startNode.next);
 		mergeSequences(reSequenceL.startNode.next);
-		reSequenceL.updatePathLength();
+
+
+		reSequenceL.minPathLength = reSequenceL.minPathLength > reSequenceR.minPathLength ? reSequenceR.minPathLength : reSequenceL.minPathLength;
+		reSequenceL.maxPathLength = reSequenceL.maxPathLength > reSequenceR.maxPathLength ? reSequenceL.maxPathLength : reSequenceR.maxPathLength;
 	}
 	
 	private static void mergeSequences(Set<Node> links) {
@@ -119,22 +122,27 @@ public class Util {
 	}
 	
 	public static void mergeDuplicateNodes(Set<Node> links) {
-		Set<Node> toRemov = new HashSet<Node>();
+		Set<Node> toRemove = new HashSet<Node>();
 		for (Node nodeL : links) {
 			for (Node nodeR : links) {
-				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemov.contains(nodeL)){
+				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemove.contains(nodeL)){
 					mergeNodes(nodeL, nodeR);
-					toRemov.add(nodeR);
+					toRemove.add(nodeR);
 				}
 			}
 		}
-		links.removeAll(toRemov);
+		links.removeAll(toRemove);
 	}
-	
+
+	/**
+	 *
+	 * @param parentNode
+	 */
 	public static void mergeAllDuplicateNodes(Node parentNode){
 		Util.mergeDuplicateNodes(parentNode.next);
 		for(Node node : parentNode.next){
-			mergeAllDuplicateNodes(node);
+			if(!node.equals(parentNode))
+				mergeAllDuplicateNodes(node);
 		}
 	}
 	
@@ -151,34 +159,6 @@ public class Util {
 			count(node,nodesToCount);
 		}
 		nodesToCount.addAll(parentNode.next);
-	}
-	
-
-	public static SequenceLength calculateDepth(Sequence reSequence){
-		SequenceLength sequenceLength = new SequenceLength(-1,-1);
-		pathLength(reSequence.startNode, 0, sequenceLength);
-		return sequenceLength;
-	}
-	
-	private static void pathLength(Node parentNode, int counter, SequenceLength sequenceLength){
-		for(Node node : parentNode.next){
-			pathLength(node, counter+1,sequenceLength);
-		}
-		if(parentNode.isEndNode) {
-			calculateMinMax(counter,sequenceLength);
-		}
-		
-	}
-	
-	private static void calculateMinMax(int counter, SequenceLength sequenceLength) {
-		if(sequenceLength.min == -1 && sequenceLength.max == -1){
-			sequenceLength.min = counter;
-			sequenceLength.max = counter;
-		}else{
-			if(counter < sequenceLength.min) sequenceLength.min = counter;
-			else if(counter > sequenceLength.max) sequenceLength.max = counter;
-		}
-		
 	}
 
 	public static Set<Node> getEndNodes(Sequence reSequence){
