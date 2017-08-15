@@ -3,7 +3,8 @@ package os.nushi.jfree.util;
 import os.nushi.jfree.ds.primitive.CharStack;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Supporting chars: *, ., ?, (), +, \\n, {},[], (?:...),(?!...),(?=...),(?<!...),(?<=...)
@@ -12,7 +13,8 @@ import java.util.List;
 //TODO: |
 public class PathLengthCalculator {
 
-    private List<Pair<Integer>> groups = new ArrayList<>();
+    private Map<Integer,Pair<Integer>> groups = new HashMap<>();
+    private int  seqCounter;
 
     /**
      * Calculate the x length of a string statisfies this regular expression.
@@ -23,6 +25,7 @@ public class PathLengthCalculator {
 
         int minCounter=0;
         int maxCounter=0;
+
 
         for(int i=0;i<re.length;i++){
             if(re[i] == '('){
@@ -35,22 +38,24 @@ public class PathLengthCalculator {
                         group= CharArrayUtil.subArray(group,2,group.length-1);
                     }
                 }
+                seqCounter++;
+                int localSeqCounter = seqCounter;
                 Pair<Integer> groupLength = length(group);
 
                 if(i == re.length-1){
-                    groups.add(groupLength);
+                    groups.put(localSeqCounter,groupLength);
                     minCounter+=groupLength.x;
                     maxCounter = setMaxLength(maxCounter,groupLength.y);
                 }else if(re[i+1] == '?'){
-                    groups.add(new Pair<>(0,groupLength.y));
+                    groups.put(localSeqCounter,new Pair<>(0,groupLength.y));
                     i++;
                     maxCounter=setMaxLength(maxCounter,groupLength.y);;
                 }else if(re[i+1] == '*' ){
-                    groups.add(new Pair<>(0,-1));
+                    groups.put(localSeqCounter,new Pair<>(0,-1));
                     i++;
                     maxCounter=-1;
                 }else if(re[i+1] == '+'){
-                    groups.add(new Pair<>(groupLength.y,-1));
+                    groups.put(localSeqCounter,new Pair<>(groupLength.y,-1));
                     i++;
                     minCounter=-1;
                 }else if(re[i+1] == '{' ){
@@ -58,10 +63,10 @@ public class PathLengthCalculator {
                     i= result.z+1;
                     minCounter+=result.x*groupLength.x;
                     maxCounter= setMaxLength(maxCounter,result.y*groupLength.y);
-                    groups.add(groupLength);
+                    groups.put(localSeqCounter,groupLength);
 
                 }else{
-                    groups.add(groupLength);
+                    groups.put(localSeqCounter,groupLength);
                     minCounter+=groupLength.x;
                     maxCounter= setMaxLength(maxCounter,groupLength.y);
                 }
@@ -85,7 +90,7 @@ public class PathLengthCalculator {
                     }
 
                     i +=backRefNum.length()-1;
-                    Pair<Integer> groupLength = groups.get(Integer.parseInt(backRefNum)-1);
+                    Pair<Integer> groupLength = groups.get(Integer.parseInt(backRefNum));
 
                     minCounter += groupLength.x;
                     maxCounter = setMaxLength(maxCounter,groupLength.y);

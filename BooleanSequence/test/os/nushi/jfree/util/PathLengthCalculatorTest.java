@@ -68,6 +68,8 @@ public class PathLengthCalculatorTest {
         Assert.assertEquals(3,new PathLengthCalculator().length("a(b|cd)e".toCharArray()).x);
         Assert.assertEquals(3,new PathLengthCalculator().length("(bgh|cd?)ef".toCharArray()).x);
 
+        Assert.assertEquals(5,new PathLengthCalculator().length("a(b(c))\\1".toCharArray()).x);
+
     }
 
     @Test
@@ -133,5 +135,6 @@ public class PathLengthCalculatorTest {
         Assert.assertEquals(5,new PathLengthCalculator().length("(bgh|cd?)ef".toCharArray()).y);
 
 
+        Assert.assertEquals(5,new PathLengthCalculator().length("a(b(c))\\1".toCharArray()).y);
     }
 }
