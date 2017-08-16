@@ -3,8 +3,10 @@ package os.nushi.jfree.model.nodes;
 import os.nushi.jfree.Result;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
+import os.nushi.jfree.model.MatchingCharSequence;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * \\n
@@ -16,14 +18,13 @@ import java.util.List;
  */
 public class BackReferenceNode extends Node {
 
-	private List<CharArrList> refForMatchingGroups;
+	private Map<Integer, MatchingCharSequence> groups;
 	private final int seqCounter;
 	int val;
 
-	public BackReferenceNode(int v, List<CharArrList> ref, int seqCounter) {
+	public BackReferenceNode(int v,int seqCounter) {
 		super('0');
 		this.val = v;
-		refForMatchingGroups = ref;
 		this.seqCounter = seqCounter;
 	}
 
@@ -34,7 +35,7 @@ public class BackReferenceNode extends Node {
 	public Result match(char[] ch, Counter index) {
 		if(cnt==0){
 			if(seqCounter >= this.val) {
-				groupVal = refForMatchingGroups.get(this.val - 1);
+				groupVal = groups.get(this.val).getMatchingSequence();
 				if(groupVal.get(cnt) == ch[index.counter]){
 					cnt++;
 					if(cnt == groupVal.size()) {
@@ -60,8 +61,13 @@ public class BackReferenceNode extends Node {
 		return Result.FAILED;
 	}
 
+	public void setGroups(Map<Integer, MatchingCharSequence> groups){
+		this.groups = groups;
+	}
+
 	public void reset(){
 		cnt=0;
 		groupVal=null;
+		this.groups = null;
 	}
 }

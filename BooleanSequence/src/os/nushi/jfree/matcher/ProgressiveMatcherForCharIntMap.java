@@ -30,16 +30,19 @@ package os.nushi.jfree.matcher;
 import os.nushi.jfree.Result;
 import os.nushi.jfree.ResultIdentifier;
 import os.nushi.jfree.Sequence;
+import os.nushi.jfree.ds.primitive.CharArrList;
+import os.nushi.jfree.model.MatchingCharSequence;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProgressiveMatcherForCharIntMap {
 
 	private Sequence reSequence;
+	private Map<Integer,MatchingCharSequence> groups;
 
-	public ProgressiveMatcherForCharIntMap() {
-		
-	}
-	
 	public ProgressiveMatcherForCharIntMap(Sequence reSequence) {
+		groups = new HashMap<>();
 		this.reSequence = reSequence;
 		reset();
 	}
@@ -70,9 +73,7 @@ public class ProgressiveMatcherForCharIntMap {
 	}
 	
 	public void reset(){
-		for (os.nushi.jfree.ds.primitive.CharArrList sublist : this.reSequence.matchingGroups) {
-			sublist.removeAll();
-		}
+		groups=null;
 		this.state = this.reSequence.startNode;
 		this.index = new os.nushi.jfree.model.Counter();
 	}
@@ -82,5 +83,10 @@ public class ProgressiveMatcherForCharIntMap {
 			if(node.match(ch,index) == Result.PASSED) return node.getNode();
 		}
 		return null;
+	}
+
+	//@Override
+	public Map<Integer,MatchingCharSequence> getGroups() {
+		return groups;
 	}
 }

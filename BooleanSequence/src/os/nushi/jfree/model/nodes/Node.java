@@ -4,26 +4,30 @@ import os.nushi.jfree.Result;
 import os.nushi.jfree.ResultIdentifier;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
+import os.nushi.jfree.model.MatchingCharSequence;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public abstract class  Node {
 	public char value;
-	public CharArrList refForMatchingCharSeq;
+	private Set<MatchingCharSequence> refForMatchingCharSeq = new HashSet<>();
 
 	public Set<Node> next;
 	public Set<Node> last;
 	public boolean isEndNode;
 	public ResultIdentifier resultType;
+	public boolean shouldBeCaptured;
 	
 	public Node() {
 		this.next = new HashSet<Node>();
 		this.last = new HashSet<Node>();
 	}
 
-	public Node(CharArrList ref) {
-		refForMatchingCharSeq = ref;
+	public Node(MatchingCharSequence ref) {
+		refForMatchingCharSeq.add(ref);
 		this.next = new HashSet<Node>();
 		this.last = new HashSet<Node>();
 	}
@@ -34,13 +38,24 @@ public abstract class  Node {
 		this.last = new HashSet<Node>();
 	}
 
-	public Node(char c,CharArrList ref) {
+	public Node(char c,MatchingCharSequence ref) {
 		this.value = c;
-		refForMatchingCharSeq = ref;
+		refForMatchingCharSeq.add(ref);
 		this.next = new HashSet<Node>();
 		this.last = new HashSet<Node>();
 	}
 
+	public void capture(char c){
+	    if(shouldBeCaptured) {
+            for (MatchingCharSequence seq : refForMatchingCharSeq) {
+                if(seq != null) seq.append(c);
+            }
+        }
+	}
+
+	public Set<MatchingCharSequence> getRefForMatchingCharSequences(){
+		return refForMatchingCharSeq;
+	}
 	
 	@Override
 	public String toString() {
@@ -69,7 +84,7 @@ public abstract class  Node {
 	public boolean isJointNode() {
 		return this.value == '\u0000';
 	}
-	
+
 	public Node getNode(){
 		return this;
 	}
@@ -95,4 +110,11 @@ public abstract class  Node {
 	public Node getCallerNode(){
 		return callerNode;
 	}*/
+
+	/**
+	 * This method can be override by child classes to reset any data before comparing next data string.
+	 */
+	public void reset(){}
+
+
 }

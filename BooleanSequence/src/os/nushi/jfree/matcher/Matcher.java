@@ -28,8 +28,12 @@ SOFTWARE.
 package os.nushi.jfree.matcher;
 
 import os.nushi.jfree.ResultIdentifier;
+import os.nushi.jfree.model.MatchingCharSequence;
+
+import java.util.Map;
 
 public interface Matcher {
-	ResultIdentifier match(char... ch);
+	public ResultIdentifier match(char... ch);
+	public Map<Integer, MatchingCharSequence> getGroups();
 
 }

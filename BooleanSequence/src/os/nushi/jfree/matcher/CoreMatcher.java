@@ -27,23 +27,26 @@ SOFTWARE.
  */
 package os.nushi.jfree.matcher;
 
-import os.nushi.jfree.ResultIdentifier;
 import os.nushi.jfree.Result;
-import os.nushi.jfree.ds.primitive.CharArrList;
-import os.nushi.jfree.model.nodes.Node;
+import os.nushi.jfree.ResultIdentifier;
 import os.nushi.jfree.Sequence;
 import os.nushi.jfree.model.Counter;
+import os.nushi.jfree.model.MatchingCharSequence;
+import os.nushi.jfree.model.nodes.BackReferenceNode;
+import os.nushi.jfree.model.nodes.Node;
+import os.nushi.jfree.model.nodes.SequenceEndNode;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CoreMatcher implements Matcher {
 	
 	private Sequence reSequence;
+	private Map<Integer,MatchingCharSequence> groups;
 
-	public CoreMatcher() {
-	}
-	
 	public CoreMatcher(Sequence reSequence) {
+		groups = new HashMap<>();
 		this.reSequence = reSequence;
-		reset();
 	}
 	
 	public void setSequence(Sequence reSequence){
@@ -55,14 +58,16 @@ public class CoreMatcher implements Matcher {
 	 * Erase any captured data  to reuse the matcher for other string.
 	 */
 	public void reset(){
-		for (CharArrList sublist : this.reSequence.matchingGroups) {
-			sublist.removeAll();
+		for (Integer groupnum: groups.keySet()) {
+			groups.get(groupnum).getMatchingSequence().removeAll();
 		}
+		groups = new HashMap<>();
+
 	}
 	
 	@Override
 	public ResultIdentifier match(char... ch){
-		if(ch.length < reSequence.minPathLength || ch.length > reSequence.maxPathLength) return Result.FAILED;
+		if(ch.length < reSequence.minPathLength || (reSequence.maxPathLength > 0 && ch.length > reSequence.maxPathLength)) return Result.FAILED;
 		Counter index = new Counter();
 		reset();
 		Node node = this.reSequence.startNode;
@@ -73,25 +78,56 @@ public class CoreMatcher implements Matcher {
 			else
 				return Result.FAILED;
 		}
-		if(node.isEndNode) return node.resultType;
-		return Result.FAILED;
+		if(node.isEndNode)
+			return node.resultType;
+		else {
+			Node n = processSeqEndNodes(node);
+			if(n != null) {
+                SequenceEndNode snd = (SequenceEndNode) n;
+                this.groups.put(snd.getSeqNumber(),snd.getMatchingSequence());
+                return n.resultType;
+            }
+			else
+				return Result.FAILED;
+		}
 	}
-	
+
 	private Node match(char[] ch, Counter index , Node nd) {
 		for (Node node : nd.next) {
+			if(node instanceof SequenceEndNode){
+				SequenceEndNode snd = (SequenceEndNode) node;
+				//CapturedGroup should be set only when control passes from seqEndNode
+				this.groups.put(snd.getSeqNumber(),snd.getMatchingSequence());
+				//node.reset();
+				index.counter--;
+				return node.getNode();
+			}else if(node instanceof BackReferenceNode){
+				((BackReferenceNode) node).setGroups(groups);
+			}
 			Result result = node.match(ch,index);
+
 			if( result == Result.MATCHED)
 				return nd;
 			else if(result == Result.PASSED)
 				return node.getNode();
 		}
-		/*if(nd instanceof IterationNode ){
-			return nd.getNode();
-		}else{
-			for (Node node : nd.next) {
-				if(node.match(ch,index)) return node.getNode();
-			}
-		}*/
 		return null;
+	}
+
+    private Node processSeqEndNodes(Node node){
+        for (Node n : node.next) {
+            if(n instanceof SequenceEndNode){
+                if(n.isEndNode){
+                    return n;
+                }
+                return processSeqEndNodes(n);
+            }
+        }
+        return null;
+    }
+	
+	@Override
+	public Map<Integer, MatchingCharSequence> getGroups() {
+		return groups;
 	}
 }

@@ -1,30 +1,24 @@
 package os.nushi.jfree;
 
-import os.nushi.jfree.ds.primitive.CharArrList;
-import os.nushi.jfree.model.SequenceLength;
+import os.nushi.jfree.model.MatchingCharSequence;
 import os.nushi.jfree.model.nodes.Node;
 import os.nushi.jfree.model.nodes.NormalNode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Sequence {
 
     public Node startNode;
 
-    public CharArrList matchingCharSequence;
-    public List<CharArrList> matchingGroups;
-    public int subSequenceCounter;
+    private MatchingCharSequence matchingCharSequence;
+    public Node endNode;
+    private Map<Integer, MatchingCharSequence> groups;
 
-    public Sequence(List<CharArrList> matchingGroups, boolean shouldCapture){
+    public Sequence(MatchingCharSequence matchingCharSequence){
+        this.matchingCharSequence = matchingCharSequence;
         this.startNode = new NormalNode();
-        //This will store each matching char while traversing through a group
-        //so that once the group traversing is finished, it's value can be assigned to matchingGroups.
-        this.matchingGroups = matchingGroups;
-        if(shouldCapture){
-            this.matchingCharSequence = new CharArrList();
-            this.matchingGroups.add(matchingCharSequence);//It'll store the result of captured sequence
-        }
     }
 
 
@@ -35,5 +29,31 @@ public class Sequence {
     public Sequence merge(Sequence sequence){
         Util.mergeSequences(this, sequence);
         return this;
+    }
+
+    Set<Node> nodes = new HashSet<>();
+    /**
+     * All the matchers should call it before traversing through the sequence
+     */
+    public void reset(){
+        for (Node node: nodes) {
+            node.reset();
+        }
+    }
+
+    public MatchingCharSequence getMatchingCharSequence() {
+        return matchingCharSequence;
+    }
+
+    public void setMatchingCharSequence(MatchingCharSequence matchingCharSequence) {
+        this.matchingCharSequence = matchingCharSequence;
+    }
+
+    public void setGroups(Map<Integer, MatchingCharSequence> groups) {
+        this.groups = groups;
+    }
+
+    public Map<Integer, MatchingCharSequence> getGroups() {
+        return groups;
     }
 }

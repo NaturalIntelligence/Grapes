@@ -32,25 +32,29 @@ import os.nushi.jfree.ResultIdentifier;
 import os.nushi.jfree.Sequence;
 import os.nushi.jfree.ds.primitive.CharArrList;
 import os.nushi.jfree.model.Counter;
+import os.nushi.jfree.model.MatchingCharSequence;
+import os.nushi.jfree.model.nodes.BackReferenceNode;
 import os.nushi.jfree.model.nodes.Node;
+import os.nushi.jfree.model.nodes.SequenceEndNode;
 
-public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
+import java.util.HashMap;
+import java.util.Map;
+
+public class LazyMatcher implements Matcher {
 
 	private Sequence reSequence;
+	private Map<Integer,MatchingCharSequence> groups;
 
-	public LazyMatcher() {
-		
-	}
-	
 	public LazyMatcher(Sequence reSequence) {
 		this.reSequence = reSequence;
+		groups = new HashMap<>();
 		state = this.reSequence.startNode;
 	}
 	
-	public void setSequence(Sequence reSequence){
+	/*public void setSequence(Sequence reSequence){
 		this.reSequence = reSequence;
 		state = this.reSequence.startNode;
-	}
+	}*/
 
 	Node state;
 	
@@ -65,19 +69,35 @@ public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
 			else
 				return Result.FAILED;;
 		}
-		if(state.isEndNode) return state.resultType;
-		return Result.MATCHED;
-	}
-	
-	public void reset(){
-		for (CharArrList sublist : this.reSequence.matchingGroups) {
-			sublist.removeAll();
+
+		if(state.isEndNode)
+			return state.resultType;
+		else {
+			Node n = processSeqEndNodes(state);
+			if(n != null) {
+				SequenceEndNode snd = (SequenceEndNode) n;
+				this.groups.put(snd.getSeqNumber(),snd.getMatchingSequence());
+				return n.resultType;
+			}
+			else if(state.next.isEmpty())
+				return Result.FAILED;
+			else
+				return Result.MATCHED;
 		}
-		this.state = this.reSequence.startNode;
 	}
-	
+
 	private Node match(char[] ch,Counter index , Node nd) {
 		for (Node node : nd.next) {
+			if(node instanceof SequenceEndNode){
+				SequenceEndNode snd = (SequenceEndNode) node;
+				//CapturedGroup should be set only when control passes from seqEndNode
+				this.groups.put(snd.getSeqNumber(),snd.getMatchingSequence());
+				//node.reset();
+				index.counter--;
+				return node.getNode();
+			}else if(node instanceof BackReferenceNode){
+				((BackReferenceNode) node).setGroups(groups);
+			}
 			Result result = node.match(ch,index);
 			if( result == Result.MATCHED)
 				return nd;
@@ -85,5 +105,30 @@ public class LazyMatcher implements os.nushi.jfree.matcher.Matcher {
 				return node.getNode();
 		}
 		return null;
+	}
+
+	private Node processSeqEndNodes(Node node){
+		for (Node n : node.next) {
+			if(n instanceof SequenceEndNode){
+				if(n.isEndNode){
+					return n;
+				}
+				return processSeqEndNodes(n);
+			}
+		}
+		return null;
+	}
+
+	public void reset(){
+		for (Integer groupnum: groups.keySet()) {
+			groups.get(groupnum).getMatchingSequence().removeAll();
+		}
+		groups = new HashMap<>();
+		this.state = this.reSequence.startNode;
+	}
+
+	@Override
+	public Map<Integer, MatchingCharSequence> getGroups() {
+		return groups;
 	}
 }

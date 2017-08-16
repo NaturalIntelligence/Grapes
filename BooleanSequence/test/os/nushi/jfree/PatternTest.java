@@ -1,21 +1,14 @@
 package os.nushi.jfree;
 
-import static os.nushi.jfree.Result.FAILED;
-import static os.nushi.jfree.Result.MATCHED;
-import static os.nushi.jfree.Result.PASSED;
-
-import os.nushi.jfree.data.TokenType;
-import os.nushi.jfree.model.SequenceLength;
-
-import os.nushi.jfree.matcher.Matcher;
-
 import org.junit.Assert;
 import org.junit.Test;
-
+import os.nushi.jfree.data.TokenType;
 import os.nushi.jfree.matcher.CoreMatcher;
+import os.nushi.jfree.matcher.LazyMatcher;
+import os.nushi.jfree.matcher.Matcher;
 import os.nushi.jfree.matcher.ProgressiveMatcher;
-import os.nushi.jfree.util.Pair;
-import os.nushi.jfree.util.PathLengthCalculator;
+
+import static os.nushi.jfree.Result.*;
 
 public class PatternTest {
 	
@@ -31,15 +24,19 @@ public class PatternTest {
 	public void testMinimizationAndOptimization() {
 		Sequence seq = new Pattern("ab(cd|ef)gh").compile();
 		System.out.println(Util.toJson(seq));
-		Assert.assertEquals(8, Util.count(seq));
-		Assert.assertEquals(Util.count(seq),8);
+		Assert.assertEquals(9, Util.count(seq));
+
+		CoreMatcher matcher = new CoreMatcher(seq);
+		assertTrue(matcher.match("abcdgh".toCharArray()));
+		assertTrue(matcher.match("abefgh".toCharArray()));
+
 
 		seq = new Pattern("ab(cde|c)?mn").compile();
-		Assert.assertEquals(7, Util.count(seq));
-		Assert.assertEquals(Util.count(seq),7);
-		CoreMatcher matcher = new CoreMatcher(seq);
-		assertTrue(matcher.match("abmn".toCharArray()));
-		assertTrue(matcher.match("abcdemn".toCharArray()));
+		System.out.println(Util.toJson(seq));
+		Assert.assertEquals(8, Util.count(seq));
+		matcher = new CoreMatcher(seq);
+        assertTrue(matcher.match("abcdemn".toCharArray()));
+        assertTrue(matcher.match("abmn".toCharArray()));
 		assertTrue(matcher.match("abcmn".toCharArray()));
 		
 	}
@@ -106,6 +103,30 @@ public class PatternTest {
 		assertTrue(matcher.match("b".toCharArray()));
 		assertTrue(matcher.match("bc".toCharArray()));
 		assertTrue(matcher.match("bcd".toCharArray()));
+	}
+
+	@Test
+	public void testWhenPointingToMultipleSameNodes() {
+		Sequence seq = new Pattern("a?a").compile();
+		Assert.assertEquals(seq.minPathLength,1);
+		Assert.assertEquals(seq.maxPathLength,2);
+		System.out.println(Util.toJson(seq));
+		CoreMatcher matcher = new CoreMatcher(seq);
+		assertTrue(matcher.match("a".toCharArray()));
+		assertTrue(matcher.match("aa".toCharArray()));
+	}
+
+	@Test
+	public void testWhenDiffrentNodesWithSameValueBeingPointedByANode() {
+		Sequence seq = new Pattern("ab|(acd)").compile();
+		Assert.assertEquals(seq.minPathLength,2);
+		Assert.assertEquals(seq.maxPathLength,3);
+		System.out.println(Util.toJson(seq));
+		CoreMatcher matcher = new CoreMatcher(seq);
+		assertTrue(matcher.match("acd".toCharArray()));
+		Assert.assertEquals("acd",matcher.getGroups().get(1).value());
+		assertTrue(matcher.match("ab".toCharArray()));
+
 	}
 	
 	/*@Test
@@ -200,37 +221,32 @@ public class PatternTest {
 	
 	@Test
 	public void testLazyMatch() {
-		os.nushi.jfree.matcher.LazyMatcher matcher = new os.nushi.jfree.matcher.LazyMatcher();
 		Sequence seq = new Pattern("a([bc])d(mn|o)\\1a\\2").compile();
 
-		matcher.setSequence(seq);
+		LazyMatcher matcher = new LazyMatcher(seq);
 		Assert.assertEquals(FAILED,matcher.match());
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','o','b'));
 		Assert.assertEquals(PASSED,matcher.match('a','o'));
-		System.out.println(seq.matchingGroups);
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','o','b'));
 		Assert.assertEquals(FAILED,matcher.match('a','m','n'));
-		System.out.println(seq.matchingGroups);
-		
+
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
 		Assert.assertEquals(PASSED,matcher.match('a','m','n'));
-		System.out.println(seq.matchingGroups);
-		
+
 		
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match('a','b'));
 		Assert.assertEquals(MATCHED,matcher.match('d','m','n','b'));
 		Assert.assertEquals(MATCHED,matcher.match('a','m'));
 		Assert.assertEquals(PASSED,matcher.match('n'));
-		System.out.println(seq.matchingGroups);
-		
+
 		seq = new Pattern("a(bc|d?e)?").compile();
-		matcher.setSequence(seq);
+		matcher = new LazyMatcher(seq);
 		Assert.assertEquals(PASSED,matcher.match('a'));//PASSED
 		Assert.assertEquals(PASSED,matcher.match('b','c'));//PASSED
 		Assert.assertEquals(FAILED,matcher.match('e'));//FAILED
@@ -240,32 +256,30 @@ public class PatternTest {
 	public void testProgressiveMatch() {
 		Sequence seq = new Pattern("a([bc])d(mn|o)\\1a\\2").compile();
 		ProgressiveMatcher matcher = new ProgressiveMatcher(seq);
+
+		System.out.println(Util.toJson(seq));
 		
 		Assert.assertEquals(FAILED,matcher.match());
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));
 		Assert.assertEquals(MATCHED,matcher.match("abdob".toCharArray()));
 		Assert.assertEquals(PASSED,matcher.match("abdobao".toCharArray()));
-		System.out.println(seq.matchingGroups);
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));
 		Assert.assertEquals(MATCHED,matcher.match("abdob".toCharArray()));
 		Assert.assertEquals(FAILED,matcher.match("abdobamn".toCharArray()));
-		System.out.println(seq.matchingGroups);
-		
+
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));
 		Assert.assertEquals(MATCHED,matcher.match("abdmnb".toCharArray()));
 		Assert.assertEquals(PASSED,matcher.match("abdmnbamn".toCharArray()));
-		System.out.println(seq.matchingGroups);
-		
+
 		
 		matcher.reset();
 		Assert.assertEquals(MATCHED,matcher.match("ab".toCharArray()));//MATCHED
 		Assert.assertEquals(MATCHED,matcher.match("abdmnb".toCharArray()));//MATCHED
 		Assert.assertEquals(MATCHED,matcher.match("abdmnbam".toCharArray()));//FAILED
 		Assert.assertEquals(PASSED,matcher.match("abdmnbamn".toCharArray()));//FAILED Value of lazy node should not be broken
-		System.out.println(seq.matchingGroups);
-		
+
 		seq = new Pattern("a(bc|d?e)?").compile();
 		matcher.setSequence(seq);
 		System.out.println(Util.toJson(seq));
@@ -302,10 +316,9 @@ public class PatternTest {
 		//System.out.println(Patterns.G_Cordinate.lazyMatch('0','°','0','′', '0','″','a'));
 		
 	}
-
 	@Test
 	public void tempTest() {
-		Pattern pattern = new Pattern("\\.d(ab?|c)e?[x-z].\\1");
+		Pattern pattern = new Pattern("(ab)|abcd");
 		//Pattern pattern = new Pattern("(abc)|abd");
 		Sequence seq = pattern.compile();
 
@@ -315,7 +328,7 @@ public class PatternTest {
 		Matcher matcher = new CoreMatcher(seq);;
 
 
-		Assert.assertEquals(PASSED,matcher.match(".dabey;ab".toCharArray()));
+		Assert.assertEquals(PASSED,matcher.match("ab".toCharArray()));
 
 	}
 }

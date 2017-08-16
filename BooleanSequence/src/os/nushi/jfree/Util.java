@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import os.nushi.jfree.model.nodes.Node;
 import os.nushi.jfree.model.SequenceLength;
+import os.nushi.jfree.model.nodes.SequenceEndNode;
 
 /**
  * @author Amit Gupta
@@ -40,18 +41,22 @@ public class Util {
 	public static String toJson(Sequence reSequence){
 		Node parentNode = reSequence.startNode;
 		Set<Node> pocessedNode = new HashSet<Node>();
-		return toJson(parentNode,"{", pocessedNode) + "}";
+		return toJson(parentNode,"{", pocessedNode, false) + "}";
 	}
 	
-	private static String toJson(Node parentNode, String jSonString, Set<Node> pocessedNode){
+	private static String toJson(Node parentNode, String jSonString, Set<Node> pocessedNode, boolean dontGoDeep){
 		if(parentNode.next.isEmpty()){
 			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) ;
 			if(parentNode.isEndNode) {
 				jSonString += "\",\"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode);
 			}
+
 			jSonString += "\", \"NodeType\" : \"" + parentNode.getClass().getSimpleName() 
-			+"\", \"LastNodes\" : \"" + parentNode.last.toString()
-			+"\"}";
+			+"\", \"LastNodes\" : \"" + parentNode.last.toString()	+"\"";
+			if(parentNode instanceof SequenceEndNode){
+				jSonString += ",\"isSeqEndNode\" : true ";
+			}
+			jSonString += "}";
 		}else{
 			jSonString += "\"node\" :{ \"id\" : \""+parentNode.hashCode()+"\", \"value\" : \"" + encode(parentNode.toString()) 
 			+"\", \"NodeType\" : \"" + parentNode.getClass().getSimpleName()
@@ -60,14 +65,25 @@ public class Util {
 			if(parentNode.isEndNode) {
 				jSonString += ",\"isEndNode\" : true , \"ExpressionType\" : \""+replaceNull(parentNode)+"\"";
 			}
+			if(parentNode instanceof SequenceEndNode){
+				jSonString += "\"isSeqEndNode\" : true ";
+			}
 			if(!pocessedNode.contains(parentNode)){
 				jSonString += ",\"links\":[";
-				for(Node node : parentNode.next){
-					jSonString += "{";
-					jSonString = toJson(node,jSonString,pocessedNode);
-					jSonString += "},";
+				if(!dontGoDeep) {
+					for (Node node : parentNode.next) {
+						jSonString += "{";
+						if (node.equals(parentNode))
+							jSonString = toJson(node, jSonString, pocessedNode, true);
+						else {
+							jSonString = toJson(node, jSonString, pocessedNode, false);
+						}
+						jSonString += "},";
+					}
+					jSonString = jSonString.substring(0,jSonString.length()-1);
+				}else{
+					jSonString += "...";
 				}
-				jSonString = jSonString.substring(0,jSonString.length()-1);
 				jSonString += "]";
 			}
 			jSonString += "}";
@@ -94,23 +110,25 @@ public class Util {
 	}
 	
 	private static void mergeSequences(Set<Node> links) {
-		Set<Node> toRemov = new HashSet<Node>();
+		Set<Node> toRemove = new HashSet<Node>();
 		for (Node nodeL : links) {
 			for (Node nodeR : links) {
-				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemov.contains(nodeL)){
+				if(nodeL != nodeR && nodeL.equals(nodeR) && !toRemove.contains(nodeL)){
 					mergeNodes(nodeL, nodeR);
 					mergeSequences(nodeL.next);
-					toRemov.add(nodeR);
+					toRemove.add(nodeR);
 				}
 			}
 		}
-		links.removeAll(toRemov);
+		links.removeAll(toRemove);
 	}
 
 	public static void mergeNodes(Node nodeL, Node nodeR) {
 		nodeL.next.addAll(nodeR.next);
 		nodeL.last.addAll(nodeR.last);
 		nodeL.isEndNode |= nodeR.isEndNode;
+		nodeL.shouldBeCaptured |= nodeR.shouldBeCaptured;
+		nodeL.getRefForMatchingCharSequences().addAll(nodeR.getRefForMatchingCharSequences());
 		if(nodeL.resultType == null)
 			nodeL.resultType = nodeR.resultType;
 
@@ -161,18 +179,4 @@ public class Util {
 		nodesToCount.addAll(parentNode.next);
 	}
 
-	public static Set<Node> getEndNodes(Sequence reSequence){
-		Set<Node> nodes = new HashSet<Node>();
-		collectEndNodes(reSequence.startNode, nodes);
-		return nodes;
-	}
-	
-	private static void collectEndNodes(Node parentNode, Set<Node> nodes) {
-		for(Node node : parentNode.next){
-			collectEndNodes(node,nodes);
-		}
-		if(parentNode.isEndNode) {
-			nodes.add(parentNode);
-		}
-	}
 }
