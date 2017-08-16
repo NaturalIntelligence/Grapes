@@ -43,13 +43,11 @@ public class CharArrList
 	}
 	
 	public CharArrList(char... c){
-		data = new char[c.length];
-		if(c.length == 1){this.data = c; this.lastElementPosition = 0;}
-		else{
-			for(int i=0;i<=c.length;i++){
-				this.add(c[i]);
-			}
-		}
+		data = c;
+	}
+
+	public CharArrList(String str){
+		this(str.toCharArray());
 	}
 	
 	public void setSizeToIncrement(int sizeToIncrement){
@@ -63,6 +61,24 @@ public class CharArrList
 		ensureCapacity(++lastElementPosition);
 		data[lastElementPosition] = value;
 	}
+
+	public void addAll(String seq){
+		addAll(seq.toCharArray());
+	}
+
+	public void addAll(CharArrList seq){
+		addAll(seq.getAllValues());
+	}
+
+	public void addAll(char[] seq){
+		ensureCapacity(++lastElementPosition,seq.length);
+		for (int i=0;i<seq.length; i++){
+			data[lastElementPosition++] = seq[i];
+		}
+
+		lastElementPosition--;
+	}
+
 
 	public char[] getAllValues(){
 		return data;
@@ -82,14 +98,18 @@ public class CharArrList
 		
 	}
 	private void ensureCapacity(int position) {
-		if (position >= data.length){
+		ensureCapacity(position,sizeToIncrement);
+	}
+
+	private void ensureCapacity(int position,int sizeToIncrement) {
+		if ((data.length + sizeToIncrement) >= position){
 			char[] newData = new char[data.length + sizeToIncrement];
 			if(data.length > 20){
 				System.arraycopy(data, 0, newData, 0, data.length);
 			}else{
 				for(int i = 0; i < data.length; i++){
 					newData[i] = data[i];
-			    }
+				}
 			}
 			data = newData;
 		}
