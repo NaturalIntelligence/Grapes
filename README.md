@@ -4,7 +4,7 @@
 
 ## Under Development
 
-##History
+## History
 I started this project by mistake... yeah you heard me right. I was developing a fast NLP tokenizer. One day I needed a feature of Regular Expression which can help me to validate some dynamic patterns. Since I was not aware that the feature is already presented with RE, I thought to code it by myself. Intially I thought to modify existing RE engine to support the new feature. But since I am bit lazy to read books, I couldn't read the whole book of Autometa theory to know how RE engine works (I dint remember how I passed the exam of Autometa theory in my college) so I decided to develop my own RE engine. And that's how this project was started. Funny but True
 
 Later on I realized that this is 3 times faster than java RE. So I decided to using Grapes instead of RE in my project. And then I introduced new features which are not even present with current RE that we'll discuss later in this ReadMe.
@@ -13,7 +13,7 @@ Currently Grapes is 1.5-2 times faster than current Java RE.
 
 **Contribute** : You can contribute to this project by adding new features mentioned at the end of this README or by testing and figuring out bug if any, or by just writing more unit tests to cover more scenarios that I may have missed, or just to buy some time for me by donating. [![Donate to author](https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_92x26.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KQJAX48SPUKNC)
 
-##Description
+## Description
 Grapes is kind of Regular Expression to make string comparision faster.
 
 Let's understand it with some examples;
@@ -75,7 +75,7 @@ Currently 3 types of matcher are supported.
   
 These are the 3 matchers I intially created. But you can create your own matchers of different features. Moreover, currently they accept char[] as input. But you can create them to accept byte[], list etc. to make them more fast. One of the sample matcher I have created under the matcher package.
 
-##Features
+## Features
 In addition of this; There are many other features;
 
 * **JSON view** : You can convert a Grapes sequence to json. I have created a temporary visualization tool to understand how a sequence is evaluated.
