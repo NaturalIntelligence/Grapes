@@ -1,6 +1,6 @@
 # Grapes
 
-![Logo](https://raw.githubusercontent.com/NaturalIntelligence/BooleanSequence/master/assets/grapes_logo.svg)
+![Logo](assets/grapes_logo.svg)
 
 ## Under Development
 
