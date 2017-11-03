@@ -2,6 +2,8 @@
 
 ![Logo](assets/grapes_logo.svg)
 
+<a href="https://liberapay.com/amitgupta/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
+
 ## Under Development
 
 ## History
