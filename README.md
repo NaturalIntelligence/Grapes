@@ -4,7 +4,9 @@
 
 <a href="https://liberapay.com/amitgupta/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
-## Under Development
+
+## Mainteners are needed
+Though it needs just the work of few weeks. I'm quite engaged in the maintenace and development of other open source projects. I would appreciate if someone would like to raise a PR to get this thing done.
 
 ## History
 I started this project by mistake... yeah you heard me right. I was developing a fast NLP tokenizer. One day I needed a feature of Regular Expression which can help me to validate some dynamic patterns. Since I was not aware that the feature is already presented with RE, I thought to code it by myself. Intially I thought to modify existing RE engine to support the new feature. But since I am bit lazy to read books, I couldn't read the whole book of Autometa theory to know how RE engine works (I dint remember how I passed the exam of Autometa theory in my college) so I decided to develop my own RE engine. And that's how this project was started. Funny but True
@@ -131,4 +133,12 @@ My immediate plans to support
 * Supporting more RE symbols
 
 
-**If you are looking for a dedicated solution to maintain stubs for your project you can have a look on my another open source project [stubby-db](https://github.com/NaturalIntelligence/StubbyDB). It requires almost no cofiguration and no coding.**
+### Worth to mention
+
+- **[निम्न (NIMN)](https://github.com/nimndata/spec)** : Schema aware object compression. 60% more compressed than JSON. 40% more compressed than msgpack.
+- **[imglab](https://github.com/NaturalIntelligence/imglab)** : Web based tool to label images for object. So that they can be used to train dlib or other object detectors. You can integrate 3rd party libraries for fast labeling.
+- [fast-lorem-ipsum](https://github.com/amitguptagwl/fast-lorem-ipsum) : Generate lorem ipsum words, sentences, paragraph very quickly.
+- [stubmatic](https://github.com/NaturalIntelligence/Stubmatic) : A stub server to mock behaviour of HTTP(s) / REST / SOAP services.
+- [अनुमार्गक (anumargak)](https://github.com/NaturalIntelligence/anumargak) : Amazinf fast router for node web servers.
+- [fastify-xml-body-parser](https://github.com/NaturalIntelligence/fastify-xml-body-parser/) : Fastify plugin / module to parse XML payload / body into JS object using fast-xml-parser.
+- [Grapes](https://github.com/amitguptagwl/grapes) : Flexible Regular expression engine (for java) which can be applied on char stream. (under development)
